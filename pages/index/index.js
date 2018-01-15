@@ -16,7 +16,7 @@ Page({
     })
   },
   onLoad: function () {
-    
+    /*
     const recorderManager = wx.getRecorderManager()
 
     recorderManager.onStart(() => {
@@ -47,7 +47,8 @@ Page({
     }
 
     recorderManager.start(options)
-    
+    */
+  
     /*
     wx.startRecord({
       success: function (res) {

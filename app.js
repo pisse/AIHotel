@@ -1,4 +1,6 @@
 //app.js
+var Services = require('services.js')
+
 App({
   onLaunch: function () {
     // 展示本地存储能力
@@ -7,9 +9,31 @@ App({
     wx.setStorageSync('logs', logs)
 
     // 登录
+    /*
     wx.login({
       success: res => {
+        console.log(res)
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
+        wx.request({
+          url: Services.login,
+          data: {
+            code: res.code
+          },
+          success: (data) => {
+            console.log(data)
+          }
+        })
+      }
+    })
+    */
+    wx.checkSession({
+      success: function(){
+        console.log('valid')
+        //session 未过期，并且在本生命周期一直有效
+      },
+      fail: function(){
+        //登录态过期
+        wx.login() // 重新登录
       }
     })
     // 获取用户信息
