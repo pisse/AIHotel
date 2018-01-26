@@ -1,0 +1,174 @@
+<style lang="less">
+  .message-wrap{
+    display: flex;
+    padding: 0 30rpx;
+    margin-top: 30rpx;
+    &.customer{
+      flex-direction:row-reverse;
+    }
+    .message{
+      max-width: 75%;
+      // color: #000000;
+      // background-color: #fff;
+      font-size:28rpx;
+      line-height:46rpx;
+      // padding:25rpx 30rpx;
+      border-bottom-left-radius: 26rpx;
+      border-bottom-right-radius: 26rpx;
+
+      .title{
+        padding:25rpx 30rpx;
+      }
+
+      .message-img-wrap{
+        padding: 0 30rpx;
+        .message-img{
+          max-width: 100%;
+          display: block;
+          border-radius: 8rpx;
+        }
+      }
+      &.no-text .message-img-wrap{
+        padding: 0;
+      }
+      .message-list-wrap{
+        background-color: #DEDCDA;
+        border-bottom-left-radius: 26rpx;
+        border-bottom-right-radius: 26rpx;
+        // padding-bottom: 25rpx;
+        .list-item{
+          display: block;
+          height: 60rpx;
+          line-height: 60rpx;
+          padding: 25rpx 30rpx ;
+          color: #0F0F0F;
+          border-bottom: 1rpx solid #C5C5C5;
+          &:last-child{
+            border-bottom: 0;
+          }
+        }
+      }
+    }
+    &.tip .tip-wrap , & .other{
+      font-size:24rpx;
+      line-height:46rpx;
+      color: #FDFDFD;
+      text-align: center;
+      width: 100%;
+    }
+    & .other {}
+    &.customer .message {
+      border-top-right-radius: 2rpx;
+      border-top-left-radius: 26rpx;
+      color: #000000;
+      background-color: #fff;
+      text-align: right;
+    }
+    &.me .message {
+      background-image: linear-gradient( 135deg, #C09656, #A5793C);
+      border-top-right-radius: 26rpx;
+      border-top-left-radius: 2rpx;
+      color: #fff;
+      text-align: left;
+    }
+    &.recommend {
+      display: block;
+      swiper{
+        height: 420rpx;
+      }
+      .recommend-wrap{
+        font-size: 30rpx;
+        .title{
+          display: block;
+          border-top-left-radius: 16rpx;
+          border-top-right-radius: 16rpx;
+          background-color: #B98334;
+          color: #fff;
+          height: 50rpx;
+          line-height: 50rpx;
+          font-size: 28rpx;
+          padding: 20rpx 50rpx;
+        }
+        .rec-content {
+          background-color: #DEDCDA;
+          border-bottom-left-radius: 16rpx;
+          border-bottom-right-radius: 16rpx;
+          .rec-item{
+            display: block;
+            height: 60rpx;
+            line-height: 60rpx;
+            padding: 25rpx 50rpx ;
+            color: #0F0F0F;
+            border-bottom: 1rpx solid #C5C5C5;
+            &:last-child{
+              border-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+
+    &.me .has-img.message{
+      background-image: linear-gradient(0deg, #fff, #fff);
+      color: #B98334;
+    }
+  }
+
+</style>
+<template>
+  <view class="message-wrap {{item.type}}">
+    <view wx:if="{{item.type == 'customer' ||  item.type == 'me'}}" class="message {{item.img ? 'has-img': ''}} {{item.content? '': 'no-text'}} {{item.list&&item.list.length>0 ? 'has-list': ''}}">
+      <view class="title" wx:if="{{item.content}}">{{item.content}}</view>
+
+      <view class="message-img-wrap" slot="img" wx:if="{{item.img}}">
+        <image class="message-img" mode="aspectFit" src="{{item.img}}"></image>
+      </view>
+
+      <view class="message-list-wrap" slot="img" wx:if="{{item.list}}">
+        <repeat for="{{item.list}}" key="index" index="index" item="content">
+          <text class="list-item">{{content}}</text>
+        </repeat>
+      </view>
+    </view>
+
+    <view class="tip-wrap" wx:elif="{{item.type == 'tip'}}">
+      <view class="title">{{item.title}}</view>
+      <view class="tip-content" wx:if="{{item.content}}">{{item.content}}</view>
+    </view>
+
+    <view class="recommend-wrap" wx:elif="{{item.type == 'recommend'}}">
+      <swiper indicator-dots="{{indicatorDots}}" indicator-color="#C5C5C5" indicator-active-color="#fff">
+        <repeat for="{{item.list}}" key="index" index="index" item="recItem">
+          <swiper-item>
+            <text class="title">{{recItem.title}}</text>
+            <view class="rec-content">
+              <repeat for="{{recItem.items}}" key="index" index="index" item="one">
+                <text class="rec-item">{{one}}</text>
+              </repeat>
+            </view>
+          </swiper-item>
+        </repeat>
+      </swiper>
+    </view>
+
+    <view wx:else class="other">
+      {{item.title}}
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Panel extends wepy.component {
+    data = {
+      indicatorDots: true
+    };
+    props = {
+      type: String,
+      item: Object
+    };
+
+    onLoad () {
+    }
+  }
+</script>

@@ -1,11 +1,30 @@
 <style lang="less">
-.container {
-  height: 100%;
+.container1 {
+  background-image: linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139);
+  height:100vh;
+  overflow: hidden;
+  // padding: 0 30rpx;
+
+  font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
+  /*height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  box-sizing: border-box;
+  box-sizing: border-box;*/
+  .page-bd{
+    // height: 100%;
+  }
+  .page-ft{
+    // background-image: linear-gradient( 45deg, #5A4B43 , #474139);
+    overflow: hidden;
+
+    // flex: 0 0 100rpx;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    // height: 200rpx;
+  }
 }
 </style>
 
@@ -16,18 +35,25 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/index'
+      // 'test/test',
+      'pages/index',
+      'test/test-bg'
     ],
     window: {
-      backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      backgroundTextStyle: 'dark',
+      navigationBarBackgroundColor: '#2A2A2A',
+      navigationBarTitleText: '智能助理',
+      navigationBarTextStyle: 'white',
+      backgroundColor: '#2A2A2A'
     }
   }
 
   globalData = {
-    userInfo: null
+    systemInfo: {},
+    userInfo: null,
+    footHeight: 260,
+    clientHeight: '',
+    cursorSpace: ''
   }
 
   constructor () {
@@ -37,6 +63,18 @@ export default class extends wepy.app {
 
   onLaunch() {
     this.testAsync()
+    let self = this
+    wx.getSystemInfo({
+      success: function (res) {
+        self.systemInfo = res
+        const resFootHeight = self.globalData.footHeight * res.windowWidth / 750
+        self.globalData.clientHeight = res.windowHeight - resFootHeight
+      },
+      fail: function () {
+        const resFootHeight = self.globalData.footHeight * 2
+        self.globalData.clientHeight = res.windowHeight - resFootHeight
+      }
+    })
   }
 
   sleep (s) {

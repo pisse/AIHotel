@@ -1,0 +1,147 @@
+<style lang="less">
+  @import "../common/less/mixin.less";
+
+  .keyboard-wrap{
+    display: flex;
+    padding: 30rpx;
+    font-size:28rpx;
+
+    .input-wrap{
+      flex: 1;
+      height: 100rpx;
+      box-sizing: border-box;
+      // padding: 0 30rpx;
+      border-bottom-left-radius: 50rpx;
+      border-top-left-radius: 50rpx;
+      background-color: rgba(255,255,255, 1);
+      color: #000;
+      .input{
+        padding: 0 30rpx;
+        height: 100%;
+        line-height: 100%;
+      }
+      .btn{
+        padding: 0;
+        height: 100%;
+        line-height: 100rpx;
+        border-bottom-left-radius: 50rpx;
+        border-top-left-radius: 50rpx;
+        background-color: #fff;
+        color: #B98334;
+        font-size: 16px;
+        &::after{
+          border: none;
+        }
+        display: flex;
+        justify-content:center;
+
+      }
+      .btn-hover{
+        background-color: #DBDBDB;
+      }
+      .voice-icon{
+        margin-left: 10rpx;
+        width: 18px;
+        height: 100%;
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+    }
+    .icon-wrap{
+      padding: 30rpx 35rpx;
+      box-sizing: border-box;
+      flex: 0 0 116rpx;
+      background-color: #B98334;
+      border-bottom-right-radius: 50rpx;
+      border-top-right-radius: 50rpx;
+      .keyboard-icon{
+        width: 100%;
+        height: 100%;
+        background-size: contain;
+        background-repeat: no-repeat;
+        // .bg-image("http://localhost:40000/coupon/icon_keyboard@_ratio_x.png");
+        // background-image: url(http://localhost:40000/coupon/icon_keyboard@2x.png);
+      }
+    }
+  }
+
+</style>
+<template>
+  <view class="keyboard-wrap">
+    <view class="input-wrap">
+      <input wx:if="{{textType}}" class="input" cursor-spacing="30" placeholder="Type message..."/>
+      <button hover-class="btn-hover" wx:else  class="btn" @longpress="longTap" @touchend="tapEnd"><text>{{btnText}}</text><image class="voice-icon" mode="aspectFit" src="{{voice_icon}}"></image></button>
+    </view>
+    <view class="icon-wrap" bindtap="toggle">
+      <!--<view class="keyboard-icon"></view>-->
+      <image class="keyboard-icon" mode="aspectFit" src="{{keyboard_icon}}"></image>
+    </view>
+
+    <speach id="toast"></speach>
+  </view>
+</template>icon
+<script>
+  import wepy from 'wepy'
+  import testMixin from '../mixins/test'
+  import Speach from './speachtoast'
+  import Counter from './counter' // alias example
+  import Toast from 'wepy-com-toast'
+
+  export default class Panel extends wepy.component {
+    data = {
+      textType: true, // true: text, false: voice
+      recs: [],
+      voice_icon: '../common/img/icon_yuyin@2x.png',
+      keyboard_icon: '../common/img/icon_keyboard@2x.png',
+      btnText: '按住讲话'
+    }
+
+    components = {
+      speach: Speach,
+      toast: Toast,
+      counter: Counter
+    }
+
+    mixins = [testMixin]
+
+    methods = {
+      btnTap (e) {
+        console.log('btn tap')
+      },
+      toggle (e) {
+        this.textType = !this.textType
+        console.log('toggle')
+      },
+      longTap (e) {
+        this.btnText = '松开发送'
+        /* let promise = this.$invoke('speachtoast', 'show', {
+          title: '自定义标题',
+          img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
+        }) */
+        this.$invoke('speach', 'show', {})
+        this.$invoke('counter', 'minus', 45, 6)
+      },
+      tapEnd () {
+        this.btnText = '按住讲话'
+      }
+    }
+
+    onLoad () {
+      let self = this
+      this.initDevice()
+      this.keyboard_icon = this.getImg('../common/img/icon_keyboard', 'png')
+      this.voice_icon = this.getImg('../common/img/icon_yuyin', 'png')
+      this.recs = [
+        {key: 'roomService', text: '客房服务'},
+        {key: 'texiService', text: '出行租车'},
+        {key: 'foodService', text: '美食推荐'},
+        {key: 'accidentService', text: '故障服务'}
+      ]
+      this.$apply()
+      /*
+      wepy.request('getRecommend').then((d) => {})
+      */
+    }
+  }
+</script>

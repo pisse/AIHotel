@@ -1,0 +1,51 @@
+<style lang="less">
+  .rec-wrap{
+    margin-top: 30rpx;
+    margin-left: 30rpx;
+    font-size:28rpx;
+    & .text{
+      display: inline-block;
+      padding: 0 36rpx;
+      height: 70rpx;
+      line-height: 70rpx;
+      margin-right: 18rpx;
+      border-radius: 8rpx;
+      background-color: rgba(255,255,255, 0.05);
+      color: #ffffff;
+    }
+  }
+
+</style>
+<template>
+  <view class="rec-wrap">
+    <scroll-view scroll-x="true" style=" white-space: nowrap; display: flex" >
+      <repeat for="{{recs}}" key="key" index="index" item="item">
+        <text class="text">{{item.text}}</text>
+      </repeat>
+    </scroll-view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Panel extends wepy.component {
+    data = {
+      recs: []
+    }
+
+    onLoad () {
+      let self = this
+      console.log('onload')
+      this.recs = [
+        {key: 'roomService', text: '客房服务'},
+        {key: 'texiService', text: '出行租车'},
+        {key: 'foodService', text: '美食推荐'},
+        {key: 'accidentService', text: '故障服务'}
+      ]
+      this.$apply()
+      /*
+      wepy.request('getRecommend').then((d) => {})
+      */
+    }
+  }
+</script>

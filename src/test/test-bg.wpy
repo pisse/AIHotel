@@ -1,0 +1,174 @@
+<style lang="less">
+  .wrap{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    .bd{
+      background-color: #419bf9;
+      flex: 1;
+      overflow-y: hidden;
+    }
+    .ft{
+      flex: 0 0 200rpx;
+      // height: 200rpx;
+      background-color: #0F0F0F;
+    }
+  }
+</style>
+<template>
+  <view class="wrap">
+    <!--<view class="bd" style="height: {{clientHeight?clientHeight+'px':'auto'}}">
+      <scroll-view scroll-y="true" style="height: 100%">
+        <repeat for="{{messages}}" key="index" index="index" item="item">
+          <message :type="item.type">{{item.content}}</message>
+        </repeat>
+      </scroll-view>
+    </view>-->
+    <view class="bd">
+      <view class="test">nima</view>
+      <scroll-view scroll-y="true" style="height: 100%">
+        <repeat for="{{messages}}" key="index" index="index" item="item">
+          <view>{{item.content}}</view>
+          <view>{{item.content}}</view>
+          <view>{{item.content}}</view>
+        </repeat>
+      </scroll-view>
+    </view>
+    <view class="ft">
+
+    </view>
+
+  </view>
+
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import List from '../components/list'
+  import Panel from '@/components/panel' // alias example
+  import Counter from 'counter' // alias example
+  import Message from '@/components/message' // alias example
+  import Group from '../components/group'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test'
+    }
+    components = {
+      panel: Panel,
+      counter1: Counter,
+      counter2: Counter,
+      list: List,
+      group: Group,
+      toast: Toast,
+      message: Message
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      clientHeight: '',
+      messages: [
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'customer', content: '我想了解下早餐时间'},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'customer', content: '我想了解下早餐时间'}
+      ],
+      list: [
+        {
+          id: 'form',
+          name: '表单',
+          open: false,
+          pages: ['button', 'list', 'input', 'slider', 'uploader']
+        },
+        {
+          id: 'widget',
+          name: '基础组件',
+          open: false,
+          pages: ['article', 'badge', 'flex', 'footer', 'gallery', 'grid', 'icons', 'loadmore', 'panel', 'preview', 'progress']
+        },
+        {
+          id: 'feedback',
+          name: '操作反馈',
+          open: false,
+          pages: ['actionsheet', 'dialog', 'msg', 'picker', 'toast']
+        },
+        {
+          id: 'nav',
+          name: '导航相关',
+          open: false,
+          pages: ['navbar', 'tabbar']
+        },
+        {
+          id: 'search',
+          name: '搜索相关',
+          open: false,
+          pages: ['searchbar']
+        }
+      ]
+    }
+    computed = {
+      now () {
+        return +new Date()
+      }
+    }
+
+    methods = {
+      kindToggle: function (e) {
+        let id = e.currentTarget.id
+        let list = this.data.list
+        for (var i = 0, len = list.length; i < len; ++i) {
+          if (list[i].id === id) {
+            list[i].open = !list[i].open
+          } else {
+            list[i].open = false
+          }
+        }
+        this.setData({
+          list: list
+        })
+      }
+    }
+
+    events = {
+      'index-emit': (...args) => {
+        let $event = args[args.length - 1]
+        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
+      }
+    }
+
+    onLoad() {
+      let self = this
+      wx.getSystemInfo({
+        success: function (res) {
+          console.log(res)
+          const footHeight = 200 * res.windowWidth / 750
+          console.log(footHeight)
+          self.clientHeight = res.windowHeight - footHeight
+        }
+      })
+      this.$parent.getUserInfo(function (userInfo) {
+        if (userInfo) {
+          self.userInfo = userInfo
+        }
+        self.normalTitle = '标题已被修改'
+
+        self.setTimeoutTitle = '标题三秒后会被修改'
+        setTimeout(() => {
+          self.setTimeoutTitle = '到三秒了'
+          self.$apply()
+        }, 3000)
+
+        self.$apply()
+      })
+    }
+  }
+</script>

@@ -1,14 +1,24 @@
 <style lang="less">
   .userinfo {
+    padding-top: 15rpx;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+  }
+  .avatar-bg{
+    padding: 2rpx;
+    background-image: linear-gradient( 135deg, #B98334, #ffffff);
+    line-height: 0;
+    border-radius: 50%;
   }
 
   .userinfo-avatar {
     width: 80rpx;
     height: 80rpx;
     border-radius: 50%;
+    // border:2rpx solid red;
+
   }
 
   .userinfo-nickname {
@@ -16,69 +26,28 @@
   }
 </style>
 <template>
-  <view class="container">
-    <view class="userinfo" @tap="handleViewTap">
-      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
-      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
+  <view class="container1">
+    <view class="page-bd">
+      <scroll-view scroll-y="true" style="height: {{clientHeight + 'px'}}">
+        <view class="userinfo" @tap="handleViewTap">
+          <view class="avatar-bg"><image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}"/></view>
+          <!--<view class="userinfo-nickname">{{ userInfo.nickName }}</view>-->
+        </view>
+
+        <repeat for="{{messages}}" key="index" index="index" item="item">
+          <message :item="item"></message>
+        </repeat>
+      </scroll-view>
+
     </view>
 
-    <panel>
-      <view class="title" slot="title">语音测试</view>
-      <button @longpress="say" @touchend="endSay" size="mini">长按说话</button> <text class="info">{{voiceText}}</text>
-    </panel>
+    <view class="page-ft" style="height: {{footHeight ? footHeight + 'rpx':'auto'}}">
+      <recommend></recommend>
 
-    <panel>
-      <view class="title" slot="title">测试数据绑定</view>
+      <keyboard></keyboard>
 
-      <text class="info">{{normalTitle}}</text>
-      <text class="info">{{setTimeoutTitle}}</text>
-      <text class="info">{{mixin}}</text>
-      <text class="info">{{mynum}}</text>
-      <text class="info">{{now}}</text>
-      <button @tap="plus('a')" size="mini">  +  </button>
-    </panel>
-
-    <panel>
-      <view class="title" slot="title">其它测试</view>
-      <button @tap="toast" size="mini">第三方组件</button>
-      <button @tap="communicate" size="mini">组件通信</button>
-      <button @tap="tap" size="mini">混合TAP事件</button>
-    </panel>
-
-    <panel>
-      <view class="title" slot="title">测试并发网络请求</view>
-      <view>返回结果: <text>{{netrst}}</text></view>
-      <button @tap="request" size="mini"> 点我发起10个请求 </button>
-    </panel>
-
-    <panel>
-      <view class="title" slot="title">测试组件</view>
-
-      <text class="testcounter">计数组件1: </text>
-      <view class="counterview">
-        <counter1 @index-emit.user="counterEmit" />
-      </view>
-
-      <text class="testcounter">计数组件2: </text>
-
-      <view class="counterview">
-        <counter2 :num.sync="mynum"></counter2>
-      </view>
-    </panel>
-
-    <panel>
-      <view class="title" slot="title">测试组件Repeat</view>
-      <repeat for="{{groupList}}" index="index" item="item" key="key">
-        <group :grouplist="item" :indexa="index"></group>
-      </repeat>
-    </panel>
-
-    <panel>
-      <view class="title" slot="title">测试列表</view>
-      <list></list>
-    </panel>
-
-    <toast />
+      <!--<navigator url="/test/test-bg" hover-class="navigator-hover">跳转到测试</navigator>-->
+    </view>
   </view>
 </template>
 
@@ -86,6 +55,9 @@
   import wepy from 'wepy'
   import List from '../components/list'
   import Panel from '@/components/panel' // alias example
+  import Message from '@/components/message' // alias example
+  import Recommend from '@/components/recommend' // alias example
+  import Keyboard from '@/components/keyboard' // alias example
   import Counter from 'counter' // alias example
   import Group from '../components/group'
   import Toast from 'wepy-com-toast'
@@ -93,7 +65,7 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: 'test'
+      navigationBarTitleText: '智能助理'
     }
     components = {
       panel: Panel,
@@ -101,12 +73,42 @@
       counter2: Counter,
       list: List,
       group: Group,
-      toast: Toast
+      toast: Toast,
+      message: Message,
+      recommend: Recommend,
+      keyboard: Keyboard
     }
 
     mixins = [testMixin]
 
     data = {
+      clientHeight: '',
+      messages: [
+        {type: 'time', title: '10:00am', content: ''},
+        {type: 'me', content: '我漂亮吗', 'img': '../common/img/head.png'},
+        {type: 'customer', content: '我想了解下早餐时间'},
+        {
+          type: 'recommend',
+          list: [{
+            title: '客房服务',
+            items: ['客房水没了', '送个剃须刀上来', '马上打扫']
+          }, {
+            title: '最新活动',
+            items: ['活动1', '活动2', '活动3']
+          }, {
+            title: '预定餐厅',
+            items: ['西餐', '中餐', '点心']
+          }]
+        },
+        {type: 'tip', title: '正在为您转接人工...', content: '【工程部】客户经理马上为您服务'},
+        {type: 'me', content: '你可能感兴趣以下问题', list: ['自然风景', '人文景观', '美食街区']},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'me', content: '', 'img': '../common/img/head.png'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'customer', content: '我想了解下早餐时间'}
+      ],
       voiceText: '',
       mynum: 20,
       userInfo: {
@@ -291,6 +293,8 @@
 
     onLoad() {
       let self = this
+      this.rpx2px()
+      this.clientHeight = this.$parent.globalData.clientHeight
       this.$parent.getUserInfo(function (userInfo) {
         if (userInfo) {
           self.userInfo = userInfo
