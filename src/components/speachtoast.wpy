@@ -1,11 +1,11 @@
 <style lang="css">
-  .wetoast {
+  .wepytoast {
     display: none;
   }
-  .wetoast_show {
+  .wepytoast_show {
     display: block;
   }
-  .wetoast__mask {
+  .wepytoast__mask {
     position: fixed;
     z-index: 1000;
     top: 0;
@@ -13,21 +13,24 @@
     left: 0;
     bottom: 0;
   }
-  .wetoast__bd {
-    opacity: 0;
+  .wepytoast__bd {
+    opacity: 1;
     display: flex;
     flex-direction: column;
     position: fixed;
     z-index: 5000;
-    min-width: 8.4em;
-    min-height: 8.4em;
-    max-width: 70%;
-    top: 140px;
+    // min-width: 7.4em;
+    // min-height: 7.4em;
+    // max-width: 70%;
+    width: 350rpx;
+    height: 350rpx;
+    top: 50%;
+    margin-top: -200rpx;
     left: 50%;
     padding: 15px;
     box-sizing: border-box;
     transform: translateX(-50%);
-    background: rgba(40, 40, 40, 0.75);
+    background: rgba(40, 40, 40, 0.8);
     border-radius: 5px;
     color: #FFFFFF;
     word-wrap: break-word;
@@ -35,30 +38,57 @@
     align-items: center;
     justify-content: space-around;
   }
-  .wetoast__bd__img {
+  .wepytoast__bd__img {
     margin-top: 3px;
   }
-  .wetoast__bd__img_desc {
+  .wepytoast__bd__img_desc {
     width: 55px;
     height: 55px;
     vertical-align: middle;
   }
-  .wetoast__bd__title {
+  .wepytoast__bd__title {
     margin: 3px 0;
-    font-size: 1.2em;
+    font-size: 0.8em;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    width: 220rpx;
+    text-align: center;
+  }
+  .wepytoast__bd__tip {
+    margin: 3px 0;
+    font-size: 0.8em;
+    color:rgba(255,255,255,0.5);
+  }
+  .wepytoast__bd__notice {
+    margin: 3px 0;
+    font-size: 0.75em;
+    color:rgba(255,255,255,0.5);
+  }
+  .wepytoast__bd__notice--red{
+    color: red;
   }
 </style>
 <template>
-  <view class="wetoast {{reveal ? 'wetoast_show' : ''}}">
-    <view class="wetoast__mask"></view>
-    <view class="wetoast__bd" animation="{{animationData}}">
-      <block wx:if="{{img}}">
-        <view class="wetoast__bd__img {{imgClassName || ''}}">
-          <image class="wetoast__bd__img_desc" src="{{img}}" mode="{{imgMode || 'scaleToFill'}}"></image>
-        </view>
+  <view class="wepytoast {{reveal ? 'wepytoast_show' : ''}}">
+    <block wx:if="{{!no_mask}}">
+      <view class="wepytoast__mask"></view>
+    </block>
+
+    <view class="wepytoast__bd" animation="{{animationData}}">
+      <block wx:if="{{tip}}">
+        <view class="wepytoast__bd__tip">{{tip}}</view>
       </block>
       <block wx:if="{{title}}">
-        <view class="wetoast__bd__title {{titleClassName || ''}}">{{title}}</view>
+        <view class="wepytoast__bd__title {{titleClassName || ''}}">{{title}}</view>
+      </block>
+      <block wx:if="{{img}}">
+        <view class="wepytoast__bd__img {{imgClassName || ''}}">
+          <image class="wepytoast__bd__img_desc" src="{{img}}" mode="{{imgMode || 'scaleToFill'}}"></image>
+        </view>
+      </block>
+      <block wx:if="{{notice}}">
+        <view class="wepytoast__bd__notice {{showCancel ? 'wepytoast__bd__notice--red' : ''}}">{{notice}}</view>
       </block>
     </view>
   </view>
@@ -74,7 +104,11 @@
       imgClassName: '',
       imgMode: 'scaleToFill',
       title: '载入中...',
-      titleClassName: ''
+      tip: '',
+      notice: '',
+      titleClassName: '',
+      no_mask: false,
+      showCancel: false
     }
 
     methods = {}
@@ -88,10 +122,10 @@
       for (let k in data) {
         this[k] = data[k]
       }
+
       this.$apply()
 
       clearTimeout(this.__timeout)
-
       setTimeout(() => {
         let animation = wx.createAnimation()
         animation.opacity(1).step()
@@ -132,6 +166,12 @@
       }
     }
 
+    cancel (data) {
+      console.log('cancel')
+      this.showCancel = true
+      this.$apply()
+    }
+
     toast (data) {
       let err = false
       try {
@@ -162,6 +202,7 @@
     }
 
     hide () {
+      console.log('hide')
       clearTimeout(this.__timeout)
       this.reveal = false
 

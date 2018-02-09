@@ -20,7 +20,7 @@
   <view class="rec-wrap">
     <scroll-view scroll-x="true" style=" white-space: nowrap; display: flex" >
       <repeat for="{{recs}}" key="key" index="index" item="item">
-        <text class="text">{{item.text}}</text>
+        <text class="text" bindtap="select({{item}})">{{item.text}}</text>
       </repeat>
     </scroll-view>
   </view>
@@ -31,6 +31,15 @@
   export default class Panel extends wepy.component {
     data = {
       recs: []
+    }
+
+    methods = {
+      select (item) {
+        this.$emit('add-message', {
+          type: 'customer',
+          content: item.text
+        })
+      }
     }
 
     onLoad () {

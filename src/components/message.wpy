@@ -21,7 +21,7 @@
       }
 
       .message-img-wrap{
-        padding: 0 30rpx;
+        padding: 0 30rpx 30rpx 30rpx;
         .message-img{
           max-width: 100%;
           display: block;
@@ -43,6 +43,9 @@
           padding: 25rpx 30rpx ;
           color: #0F0F0F;
           border-bottom: 1rpx solid #C5C5C5;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
           &:last-child{
             border-bottom: 0;
           }
@@ -62,7 +65,7 @@
       border-top-left-radius: 26rpx;
       color: #000000;
       background-color: #fff;
-      text-align: right;
+      text-align: left;
     }
     &.me .message {
       background-image: linear-gradient( 135deg, #C09656, #A5793C);
@@ -121,12 +124,12 @@
       <view class="title" wx:if="{{item.content}}">{{item.content}}</view>
 
       <view class="message-img-wrap" slot="img" wx:if="{{item.img}}">
-        <image class="message-img" mode="aspectFit" src="{{item.img}}"></image>
+        <image class="message-img" mode="widthFix" src="{{item.img}}"></image>
       </view>
 
       <view class="message-list-wrap" slot="img" wx:if="{{item.list}}">
-        <repeat for="{{item.list}}" key="index" index="index" item="content">
-          <text class="list-item">{{content}}</text>
+        <repeat for="{{item.list}}" key="index" index="index" item="info">
+          <text class="list-item" bindtap="selectQuestion({{info}})">{{info['question']}}</text>
         </repeat>
       </view>
     </view>
@@ -167,6 +170,16 @@
       type: String,
       item: Object
     };
+
+    methods = {
+      selectQuestion (item) {
+        console.log(item)
+        this.$emit('add-message', {
+          type: 'me',
+          content: item.answer
+        })
+      }
+    }
 
     onLoad () {
     }

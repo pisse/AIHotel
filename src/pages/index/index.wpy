@@ -1,0 +1,304 @@
+<style lang="less">
+  .userinfo {
+    padding-top: 15rpx;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .avatar-bg{
+    padding: 2rpx;
+    background-image: linear-gradient( 135deg, #B98334, #ffffff);
+    line-height: 0;
+    border-radius: 50%;
+    margin-left: 30rpx;
+  }
+
+  .userinfo-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+    // border:2rpx solid red;
+
+  }
+
+  .userinfo-nickname {
+    color: #aaa;
+  }
+  #scroll_bottom_pos {
+    height: 0;
+  }
+</style>
+<template>
+  <view class="container"  style="background-image: {{previewBg}}">
+    <view class="page-bd">
+      <scroll-view  scroll-y="true" style="height: {{clientHeight + 'px'}}"
+                    scroll-with-animation="true"
+                    enable-back-to-top="true"
+                    scroll-top="{{scrollTop}}">
+        <view id="scroll_view">
+          <view class="userinfo" @tap="handleViewTap">
+            <view class="avatar-bg"><image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}"/></view>
+            <!--<view class="userinfo-nickname">{{ userInfo.nickName }}</view>-->
+          </view>
+
+          <repeat for="{{messages}}" key="index" index="index" item="item">
+            <message :item="item" @add-message.user="newMessage"></message>
+          </repeat>
+         <!-- <view id="scroll_bottom_pos"></view>-->
+        </view>
+      </scroll-view>
+
+    </view>
+
+    <view class="page-ft" style="height: {{footHeight ? footHeight + 'rpx':'auto'}}">
+      <recommend @add-message.user="newMessage"></recommend>
+
+      <keyboard @add-message.user="newMessage"></keyboard>
+
+      <!--<navigator url="/test/test-bg" hover-class="navigator-hover">跳转到测试</navigator>-->
+    </view>
+
+    <speach id="toast"></speach>
+
+    <bgsetting></bgsetting>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  // import List from '../components/list'
+  // import Panel from '@/components/panel' // alias example
+  import Message from '@/components/message' // alias example
+  import Speach from '@/components/speachtoast' // alias example
+  import Recommend from '@/components/recommend' // alias example
+  import Keyboard from '@/components/keyboard' // alias example
+  import Bgsetting from '@/components/bgsetting' // alias example
+  // import Group from '@/components/group'
+  // import Toast from 'wepy-com-toast'
+  import baseMixin from '@/mixins/base'
+
+  const MessageBackgroundImg = 'message-background-image'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '智能助理'
+    }
+    components = {
+      // panel: Panel,
+      // list: List,
+      // group: Group,
+      // toast: Toast,
+      message: Message,
+      recommend: Recommend,
+      keyboard: Keyboard,
+      speach: Speach,
+      bgsetting: Bgsetting
+    }
+
+    mixins = [baseMixin]
+
+    data = {
+      // toView: '',
+      previewBg: 'linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139)',
+      scrollTop: 100,
+      clientHeight: '',
+      messages: [
+        {type: 'me', content: '您好，小朗在~我可以帮您预定房间、解答问题、递送物质...欢迎随时找我'}
+        /* {type: 'time', title: '10:00am', content: ''},
+        {type: 'me', content: '我漂亮吗', 'img': '../common/img/head.png'},
+        {type: 'customer', content: '我想了解下早餐时间'},
+        {
+          type: 'recommend',
+          list: [{
+            title: '客房服务',
+            items: ['客房水没了', '送个剃须刀上来', '马上打扫']
+          }, {
+            title: '最新活动',
+            items: ['活动1', '活动2', '活动3']
+          }, {
+            title: '预定餐厅',
+            items: ['西餐', '中餐', '点心']
+          }]
+        },
+        {type: 'tip', title: '正在为您转接人工...', content: '【工程部】客户经理马上为您服务'},
+        {type: 'me', content: '你可能感兴趣以下问题', list: ['自然风景', '人文景观', '美食街区']},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'me', content: '', 'img': '../common/img/head.png'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'},
+        {type: 'customer', content: '我想了解下早餐时间'}, {type: 'customer', content: '我想了解下早餐时间'} */
+      ],
+      voiceText: '',
+      userInfo: {
+        nickName: '加载中...'
+      },
+      scrollTimer: null
+    }
+
+    computed = {
+      now () {
+        return +new Date()
+      }
+    }
+
+    methods = {
+      tap () {
+        // console.log('do noting from ' + this.$name)
+      },
+      newMessage (message, $event) {
+        console.log('get new message')
+        let self = this
+        // console.log(arguments)
+        this.pushMessage(message)
+        // this.messages.push(message)
+        // 有客户资讯，调追一服务来回复
+        if (message.type == 'customer') {
+          this.question(message)
+        }
+        /*
+        this.toView = 'scroll_bottom_pos'
+        setTimeout(() => {
+          self.toView = ''
+        })
+        */
+      }
+    }
+
+    pushMessage (msg) {
+      this.messages.push(msg)
+      this.$apply()
+      setTimeout(() => {
+        this.pageScrollToBottom()
+      }, 150)
+    }
+
+    pageScrollToBottom() {
+      let self = this
+      wx.createSelectorQuery().select('#scroll_view').boundingClientRect((rect) => {
+        // 使页面滚动到底部
+        /* wx.pageScrollTo({
+         scrollTop: rect.bottom
+         }) */
+        // self.scrollTop += 100
+        // console.log(rect)
+        console.log(`scrolling height: ${rect.height}, top: ${rect.top}, bottom: ${rect.bottom}`)
+        self.scrollTop = rect.height // - self.clientHeight
+        self.$apply()
+      }).exec()
+    }
+
+    question (message) {
+      console.log('begin question')
+      let self = this
+      wepy.request({
+        url: self.host + 'zy_service/query?question=' + message['content']
+      }).then((res) => {
+        let result = res.data.data
+        console.log(result)
+        if (result.status == 0) {
+          let answer = this.getAnswer(result)
+          this.pushMessage(answer)
+        }
+      })
+    }
+    getAnswer (data) {
+      let infos = data.info
+      let message = {
+        type: 'me',
+        content: ''
+      }
+      // recommend answer
+      if (data.type == 300) {
+        message['content'] = '您可能感兴趣以下问题'
+        message['list'] = infos.slice()
+         /*  .map(item => {
+          return self.getContent(item, true)['content']
+        }) */
+      } else if (data.type == 200) { // direct answer
+        Object.assign(message, this.getContent(infos[0]))
+      }
+
+      return message
+    }
+
+    getContent (info) {
+      let message = {}
+      switch (info.answerType) {
+        case 'image-text':
+          let answerJson = info['answerJson'][0]
+          message['content'] = answerJson['title']
+          message['img'] = answerJson['pic_url']
+          break
+        case 'text':
+          message['content'] = info['answer']
+          break
+        case 'rich-text':
+          message['content'] = info['answer']
+          break
+        default:
+          message['content'] = '对不起，这个我不能识别'
+      }
+      return message
+    }
+
+    events = {
+      'index-emit': (...args) => {
+        let $event = args[args.length - 1]
+        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
+      }
+      /* 'reset-client-height': (message, $event) => {
+        console.log('reset client height')
+        this.clientHeight = this.$parent.globalData.clientHeight
+      } */
+    }
+
+    onReady () {
+      this.pageScrollToBottom()
+    }
+
+    onShow () {
+      // 获取本地存储的背景图片
+      try {
+        this.pageScrollToBottom()
+        var bgImage = wx.getStorageSync(MessageBackgroundImg)
+        if (bgImage) {
+          this.previewBg = bgImage
+        }
+      } catch (e) {
+      }
+    }
+
+    onLoad() {
+      let self = this
+      // console.log(this.$wxapp.globalData)
+      // this.rpx2px()
+
+      if (!this.$parent.globalData.clientHeight) {
+        console.log('index page1, clientHeight' + this.$parent.globalData.clientHeight)
+        wx.getSystemInfo({
+          success: function (res) {
+            const resFootHeight = self.globalData.footHeight * res.windowWidth / 750
+            self.globalData.clientHeight = res.windowHeight - resFootHeight
+            self.clientHeight = self.globalData.clientHeight
+            console.log(`height setting, clientHeight: ${self.clientHeight}, footHeight: ${resFootHeight}`)
+            self.$apply()
+          }
+        })
+      } else {
+        this.clientHeight = this.$parent.globalData.clientHeight
+        console.log('index page2, clientHeight' + this.clientHeight)
+        self.$apply()
+      }
+
+      this.$parent.getUserInfo(function (userInfo) {
+        if (userInfo) {
+          self.userInfo = userInfo
+        }
+        self.$apply()
+      })
+    }
+  }
+</script>

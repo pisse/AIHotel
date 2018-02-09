@@ -3,6 +3,8 @@ import wepy from 'wepy'
 export default class testMixin extends wepy.mixin {
   data = {
     mixin: 'This is mixin data.',
+    host: 'https://jdzs.wezhuiyi.com/node/',
+    sessionName: 'restifySessionid',
     pixelRatio: 2
   }
   methods = {
@@ -24,6 +26,12 @@ export default class testMixin extends wepy.mixin {
 
   rpx2px() {
     console.log('rpx2px')
+  }
+
+  getCookie(str, name) {
+    const reg = new RegExp('(^| )' + name + '(?:=([^;]*))?(;|$)')
+    const val = str.match(reg)
+    return val ? (val[2] ? unescape(val[2]) : '') : null
   }
 
   initDevice () {

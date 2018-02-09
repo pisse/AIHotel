@@ -95,12 +95,12 @@
 
 <script>
   import wepy from 'wepy'
-  import List from '../components/list'
+  import List from '@/components/list'
   import Panel from '@/components/panel' // alias example
   import Counter from 'counter' // alias example
-  import Group from '../components/group'
+  import Group from '@/components/group'
   import Toast from 'wepy-com-toast'
-  import testMixin from '../mixins/test'
+  import testMixin from '@/mixins/base'
 
   export default class Index extends wepy.page {
     config = {
@@ -235,7 +235,7 @@
           const { tempFilePath } = res
           // 上传语音文件至服务器
           wepy.uploadFile({
-            url: 'http://localhost:40000/node/voice/recognize',
+            url: 'http://140.143.161.217/node/voice/recognize',
             filePath: tempFilePath,
             name: 'record',
             // header: {}, // 设置请求的 header
@@ -269,6 +269,7 @@
         })
         recorderManager.onFrameRecorded((res) => {
           const { frameBuffer } = res
+          console.log('frame size')
           console.log('frameBuffer.byteLength', frameBuffer.byteLength)
         })
 
@@ -278,7 +279,7 @@
           numberOfChannels: 1,
           encodeBitRate: 64000,
           format: 'mp3',
-          frameSize: 50
+          frameSize: 10
         }
 
         recorderManager.start(options)
