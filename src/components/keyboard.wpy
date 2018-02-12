@@ -223,44 +223,44 @@
             formData: {
               'msg': 'voice'
             }, // HTTP 请求中其他额外的 form data
-            success: function (res) {
-              // success
-              // let result = JSON.parse(res.data)
-              const json = JSON.parse(res.data)
-              const voiceText = json.data.result || []
-              // console.log(voiceText)
-              // send a voice message
-              console.log(voiceText)
-              if (json.data.err_no) {
-                self.$emit('add-message', {
-                  type: 'me',
-                  content: '对不起，没听清楚您说什么~'
-                })
-              } else {
-                self.$emit('add-message', {
-                  type: 'customer',
-                  content: voiceText[0].slice(0, voiceText[0].length - 1)
-                })
-              }
-
-              // self.voiceText = json.data.result[0]
-              // self.$apply()
-              // var jsonMsg = JSON.parse(json.msg)
-              // console.log(jsonMsg.result)
-              /*
-               wepy.navigateTo({
-               url: '../voicePage/voicePage?voiceData=' + jsonMsg.result.join('')
-               })
-               */
-            },
-            fail: function (err) {
-              // fail
-              console.log(err)
-            },
             complete: function () {
               // complete
+              console.log('complete')
               self.$invoke('../speach', 'hide', {})
             }
+          }).then(res => {
+            // success
+            // let result = JSON.parse(res.data)
+            const json = JSON.parse(res.data)
+            const voiceText = json.data.result || []
+            // console.log(voiceText)
+            // send a voice message
+            console.log(voiceText)
+            if (json.data.err_no) {
+              self.$emit('add-message', {
+                type: 'me',
+                content: '对不起，没听清楚您说什么~'
+              })
+            } else {
+              self.$emit('add-message', {
+                type: 'customer',
+                content: voiceText[0].slice(0, voiceText[0].length - 1)
+              })
+            }
+
+            // self.voiceText = json.data.result[0]
+            // self.$apply()
+            // var jsonMsg = JSON.parse(json.msg)
+            // console.log(jsonMsg.result)
+            /*
+             wepy.navigateTo({
+             url: '../voicePage/voicePage?voiceData=' + jsonMsg.result.join('')
+             })
+             */
+          }, err => {
+            console.log(err)
+          }).then(() => {
+            self.$invoke('../speach', 'hide', {})
           })
         })
         /* recorderManager.onFrameRecorded((res) => {

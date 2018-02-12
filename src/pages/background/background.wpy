@@ -210,16 +210,6 @@
                 formData: {
                 }, // HTTP 请求中其他额外的 form data
                 success: function (res) {
-                  console.log(res)
-                  var result = JSON.parse(res.data)
-                  let url = `url(http://jdzs.wezhuiyi.com/file/${result.data})`
-                  /* wx.setStorage({
-                    key: MessageBackgroundImg,
-                    data: url
-                  }) */
-                  self.previewBg = url
-                  console.log(url)
-                  self.$apply()
                 },
                 fail: function (err) {
                   // fail
@@ -228,6 +218,17 @@
                 complete: function () {
                   // complete
                 }
+              }).then(res => {
+                console.log(res)
+                var result = JSON.parse(res.data)
+                let url = `url(https://jdzs.wezhuiyi.com/file/${result.data})`
+                /* wx.setStorage({
+                 key: MessageBackgroundImg,
+                 data: url
+                 }) */
+                self.previewBg = url
+                console.log(url)
+                self.$apply()
               })
             }
           })

@@ -174,10 +174,12 @@
     methods = {
       selectQuestion (item) {
         console.log(item)
-        this.$emit('add-message', {
+        this.$emit('add-message', item
+          /* {
           type: 'me',
           content: item.answer
-        })
+        } */
+        )
       }
     }
 

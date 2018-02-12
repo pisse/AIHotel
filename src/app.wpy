@@ -101,6 +101,7 @@ export default class extends wepy.app {
   }
 
   onShow () {
+    let self = this
     // 检测当前用户登录态是否有效
     wx.checkSession({
       success: function () {
@@ -108,7 +109,7 @@ export default class extends wepy.app {
       },
       fail: function () {
         // 登录态过期
-        this.login() // 重新登录
+        // self.login() // 重新登录
       }
     })
   }

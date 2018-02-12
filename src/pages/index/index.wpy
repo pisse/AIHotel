@@ -43,7 +43,7 @@
           </view>
 
           <repeat for="{{messages}}" key="index" index="index" item="item">
-            <message :item="item" @add-message.user="newMessage"></message>
+            <message :item="item" @add-message.user="messageFeedback"></message>
           </repeat>
          <!-- <view id="scroll_bottom_pos"></view>-->
         </view>
@@ -164,6 +164,14 @@
           self.toView = ''
         })
         */
+      },
+      messageFeedback (info, $event) {
+        let message = {
+          type: 'me',
+          content: ''
+        }
+        Object.assign(message, this.getContent(info))
+        this.pushMessage(message)
       }
     }
 
@@ -225,10 +233,11 @@
     }
 
     getContent (info) {
-      let message = {}
+      let message = {
+      }
       switch (info.answerType) {
         case 'image-text':
-          let answerJson = info['answerJson'][0]
+          let answerJson = info['answerjson'][0]
           message['content'] = answerJson['title']
           message['img'] = answerJson['pic_url']
           break
@@ -240,6 +249,10 @@
           break
         default:
           message['content'] = '对不起，这个我不能识别'
+      }
+      if (info.link == 'cmd') {
+        message['type'] = 'tip'
+        message['content'] = '你的要求已收到，清稍等~'
       }
       return message
     }
