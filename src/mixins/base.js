@@ -4,7 +4,7 @@ export default class testMixin extends wepy.mixin {
   data = {
     mixin: 'This is mixin data.',
     host: 'https://jdzs.wezhuiyi.com/node/',
-    sessionName: 'restifySessionid',
+    sessionName: 'sessionID',
     pixelRatio: 2
   }
   methods = {

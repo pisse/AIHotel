@@ -212,6 +212,7 @@
         }
       })
     }
+
     getAnswer (data) {
       let infos = data.info
       let message = {
