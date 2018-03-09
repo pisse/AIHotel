@@ -10,22 +10,31 @@ export default class testMixin extends wepy.mixin {
   methods = {
     tap () {
       this.mixin = 'mixin data was changed'
-      console.log('mixin method tap')
+      // console.log('mixin method tap')
     }
   }
 
   onShow() {
-    console.log('mixin onShow')
+    // console.log('mixin onShow')
   }
 
   onReady() {
-    console.log('onready')
+    // console.log('onready')
   }
   onLoad() {
   }
 
   rpx2px() {
     console.log('rpx2px')
+  }
+
+  trim(str, isGlobal) {
+    var result
+    result = str.replace(/(^\s+)|(\s+$)/g, '')
+    if (isGlobal && isGlobal.toLowerCase() == 'g') {
+      result = result.replace(/\s/g, '')
+    }
+    return result
   }
 
   getCookie(str, name) {
@@ -44,6 +53,7 @@ export default class testMixin extends wepy.mixin {
     while (root.$parent) {
       root = root.$parent
     }
+    console.log(root)
     return root
   }
 

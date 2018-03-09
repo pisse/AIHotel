@@ -28,6 +28,15 @@
   #scroll_bottom_pos {
     height: 0;
   }
+  .wxc-dialog .input-wrap{
+    text-align: center;
+    font-size: 26rpx;
+    margin-bottom: 10rpx;
+    .input{
+      height: 80rpx;
+      // border-bottom: 1px solid rgb(233,233,233);
+    }
+  }
 </style>
 <template>
   <view class="container"  style="background-image: {{previewBg}}">
@@ -43,7 +52,7 @@
           </view>
 
           <repeat for="{{messages}}" key="index" index="index" item="item">
-            <message :item="item" @add-message.user="messageFeedback"></message>
+            <message :item="item" @add-message.user="messageFeedback" @action-message.user="messageAction"></message>
           </repeat>
          <!-- <view id="scroll_bottom_pos"></view>-->
         </view>
@@ -63,6 +72,18 @@
 
     <bgsetting></bgsetting>
 
+    <wxc-dialog class="wxc-dialog" title="信息认证" content="" confirm-text="确认"
+                bindtap="masktap" confirmColor="#3B53F4" bindconfirm="onConfirm" bindcancel="onCancel">
+      <view class="input-wrap">
+        <input class="input"  cursor-spacing="120" type="number" focus="{{autoFocus}}" bindinput="roomIpt" placeholder="房间号" />
+        <input class="input"  cursor-spacing="80" type="password" value="{{cardNum}}" bindinput="cardIpt" placeholder="身份证后四位" />
+      </view>
+    </wxc-dialog>
+
+
+    <!--<import src="../../packages/wxParse/wxParse.wxml"/>
+    <template is="wxParse" data="{{wxParseData:article.nodes}}"/>-->
+
   </view>
 </template>
 
@@ -78,12 +99,18 @@
   // import Group from '@/components/group'
   // import Toast from 'wepy-com-toast'
   import baseMixin from '@/mixins/base'
+  import util from '@/utils/util.js'
+
+  // import wxParse from '@/packages/wxParse/wxParse.js'
 
   const MessageBackgroundImg = 'message-background-image'
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: '智能助理'
+      navigationBarTitleText: '智能助理',
+      usingComponents: {
+        'wxc-dialog': '../../packages/@minui/wxc-dialog/dist/index'
+      }
     }
     components = {
       // panel: Panel,
@@ -101,11 +128,20 @@
 
     data = {
       // toView: '',
+      test: 1,
+      article: {
+        nodes: [1, 2]
+      },
+      autoFocus: false,
+      roomNum: '',
+      cardNum: '',
       previewBg: 'linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139)',
       scrollTop: 100,
       clientHeight: '',
       messages: [
-        {type: 'me', content: '您好，小朗在~我可以帮您预定房间、解答问题、递送物质...欢迎随时找我'}
+        {type: 'tip', title: util.formatTime(new Date())},
+        {type: 'me', content: '您好，小香在~我可以帮您预定房间、解答问题、递送物品。如您需要更多的客房服务，请您验证入住信息，', action: '立即验证>>'}
+        // {type: 'me', content: '为了更好的服务到您，请您认证入住信息，', action: '立即验证'}
         /* {type: 'time', title: '10:00am', content: ''},
         {type: 'me', content: '我漂亮吗', 'img': '../common/img/head.png'},
         {type: 'customer', content: '我想了解下早餐时间'},
@@ -135,6 +171,7 @@
       userInfo: {
         nickName: '加载中...'
       },
+      customerInfo: null,
       scrollTimer: null
     }
 
@@ -170,8 +207,95 @@
           type: 'me',
           content: ''
         }
-        Object.assign(message, this.getContent(info))
-        this.pushMessage(message)
+        let content = this.getContent(info)
+        if (content) {
+          Object.assign(message, content)
+          this.pushMessage(message)
+        }
+      },
+      messageAction (message) {
+        // console.log(message)
+        let info = message.info || {}
+        if (info.answerType == 'image-text') {
+          let answerJson = info['answerjson'][0]
+          this.redirect(answerJson['url'])
+        } else {
+          this.showDialog()
+        }
+      },
+      roomIpt (e) {
+        this.roomNum = e.detail.value
+      },
+      cardIpt (e) {
+        if (e.detail.value.length > 4) {
+          wx.showToast({
+            title: '最多4位',
+            icon: 'none',
+            duration: 1000
+          })
+        }
+        let val = e.detail.value.slice(0, 4)
+        // console.log(val)
+        this.cardNum = val
+        return val
+      },
+      onConfirm (e) {
+        console.log(e)
+        let self = this
+        this.autoFocus = false
+        if (this.roomNum && this.cardNum) {
+          this.customerInfo = {
+            room: this.roomNum,
+            card: this.cardNum
+          }
+          // 写入客房认证信息到本地存储
+          wx.setStorage({
+            key: 'customerInfo',
+            data: this.customerInfo
+          })
+          wx.showLoading({
+            title: '认证中...'
+          })
+          setTimeout(function () {
+            wx.showToast({
+              title: '成功',
+              icon: 'success',
+              duration: 2000
+            })
+            wx.hideLoading()
+            self.hideDialog()
+          }, 2000)
+        } else {
+          let msg = !this.roomNum ? '请输入客房号' : '请输入身份证后四位'
+          wx.showToast({
+            title: msg,
+            icon: 'none',
+            duration: 2000
+          })
+        }
+      },
+      masktap (e) {
+        this.hideDialog()
+      }
+    }
+
+    showDialog () {
+      let $dialog = this.$wxpage.selectComponent('.wxc-dialog')
+      this.autoFocus = true
+      $dialog && $dialog.show()
+    }
+    hideDialog () {
+      let $dialog = this.$wxpage.selectComponent('.wxc-dialog')
+      $dialog && $dialog.hide()
+    }
+    redirect(url) {
+      let protocol = url.split(':')[0]
+      if (protocol == 'wx') {
+        wx.navigateTo({
+          url: url.split(':')[1]
+        })
+      // web-view show
+      } else {
       }
     }
 
@@ -205,15 +329,59 @@
         url: self.host + 'zy_service/query?question=' + message['content']
       }).then((res) => {
         let result = res.data.data
-        console.log(result)
         if (result.status == 0) {
           let answer = this.getAnswer(result)
           this.pushMessage(answer)
         }
       })
     }
-
-    getAnswer (data) {
+    getAnswer (result) {
+      let answerType = result.answer_type
+      if (result.clarify) {
+        answerType = 'task'
+      }
+      // reject_focog
+      if (result.recject_recog) {
+        answerType = 'reject'
+      }
+      let answer = {}
+      switch (answerType) {
+        case 'reject':
+          answer = this.getRejectAnswer(result)
+          break
+        case 'faq':
+          answer = this.getFaqAnswer(result)
+          break
+        case 'task':
+          answer = this.getTaskAnswer(result)
+          break
+        default:
+          answer = this.getFaqAnswer(result)
+      }
+      return answer
+    }
+    getRejectAnswer () {
+      let message = {
+        type: 'me',
+        content: '您好！很抱歉，您咨询的内容我们目前暂时无法为您提供准确的服务，欢迎联系我们的客服中心8888，咨询并获取您需要的服务。谢谢！'
+      }
+      return message
+    }
+    getTaskAnswer (data) {
+      let message = {
+        type: 'me',
+        content: '',
+        task_question: ''
+      }
+      let clarifyInfo = data.clarify
+      message['content'] = clarifyInfo['answer'].replace(/'/g, '')
+        .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+        .replace(/<\/?[^>]*>/g, '') // 过滤html的标签
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      message['task_question'] = clarifyInfo['question']
+      return message
+    }
+    getFaqAnswer (data) {
       let infos = data.info
       let message = {
         type: 'me',
@@ -235,6 +403,8 @@
 
     getContent (info) {
       let message = {
+        // answerType: info.answerType,
+        info: info
       }
       switch (info.answerType) {
         case 'image-text':
@@ -249,11 +419,16 @@
           message['content'] = info['answer']
           break
         default:
-          message['content'] = '对不起，这个我不能识别'
+          message['content'] = info['answer'] || '对不起，这个我不能识别'
       }
       if (info.link == 'cmd') {
-        message['type'] = 'tip'
-        message['content'] = '你的要求已收到，清稍等~'
+        // message['type'] = 'tip'
+        if (!this.customerInfo) {
+          this.showDialog()
+          return false
+        } else {
+          message['content'] = '您的要求已收到，请稍等~'
+        }
       }
       return message
     }
@@ -274,6 +449,12 @@
     }
 
     onShow () {
+      /* let date = new Date()
+      this.pushMessage({
+        type: 'tip',
+        title: util.formatTime(date)
+      }) */
+      // console.log(util.formatTime(date))
       // 获取本地存储的背景图片
       try {
         this.pageScrollToBottom()
@@ -285,34 +466,45 @@
       }
     }
 
-    onLoad() {
+    async onLoad() {
       let self = this
       // console.log(this.$wxapp.globalData)
       // this.rpx2px()
 
       if (!this.$parent.globalData.clientHeight) {
-        console.log('index page1, clientHeight' + this.$parent.globalData.clientHeight)
+        // console.log('index page1, clientHeight' + this.$parent.globalData.clientHeight)
         wx.getSystemInfo({
           success: function (res) {
             const resFootHeight = self.globalData.footHeight * res.windowWidth / 750
             self.globalData.clientHeight = res.windowHeight - resFootHeight
             self.clientHeight = self.globalData.clientHeight
-            console.log(`height setting, clientHeight: ${self.clientHeight}, footHeight: ${resFootHeight}`)
+            // console.log(`height setting, clientHeight: ${self.clientHeight}, footHeight: ${resFootHeight}`)
             self.$apply()
           }
         })
       } else {
         this.clientHeight = this.$parent.globalData.clientHeight
-        console.log('index page2, clientHeight' + this.clientHeight)
-        self.$apply()
+        // console.log('index page2, clientHeight' + this.clientHeight)
+        // self.$apply()
       }
 
-      this.$parent.getUserInfo(function (userInfo) {
+      // 房客认证信息
+      let customerInfo = wx.getStorageSync('customerInfo')
+      this.customerInfo = customerInfo
+
+      /* let article = '<div>我是HTML代码</div>'
+      let htmlContent = wxParse.wxParse('article', 'html', article, this, 5)
+      this.article = htmlContent['article'] */
+
+      this.userInfo = await this.$parent.getUserInfo()
+      self.$apply()
+      /* this.$parent.getUserInfo(function (userInfo) {
+        console.log(userInfo)
         if (userInfo) {
           self.userInfo = userInfo
         }
         self.$apply()
-      })
+      }) */
     }
   }
 </script>

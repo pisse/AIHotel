@@ -44,7 +44,6 @@
 
     onLoad () {
       let self = this
-      console.log('onload')
       this.recs = [
         {key: 'roomService', text: '客房服务'},
         {key: 'texiService', text: '出行租车'},

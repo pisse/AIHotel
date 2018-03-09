@@ -145,11 +145,12 @@
         {class: 'blue', bgImage: 'linear-gradient( 45deg, #3B53F4 , #51C5FF, #fff)'},
         {class: 'custom', bgImage: 'linear-gradient( 45deg, #fff , #fff)'}],
       userInfo: {
-        nickName: '加载中...'
+        nickName: '加载中...',
+        avatarUrl: ''
       },
       messages: [
         {type: 'customer', content: '我想了解下早餐时间'},
-        {type: 'me', content: '您好张先生，小朗在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'}
+        {type: 'me', content: '您好张先生，小香在~我可以帮你预定房间、解答问题、递送物质...欢迎随时找我'}
       ]
     }
 
@@ -262,16 +263,9 @@
     events = {
     }
 
-    onLoad() {
-      const self = this
-      this.$parent.getUserInfo(function (userInfo) {
-        console.log(userInfo)
-        if (userInfo) {
-          // console.log(1212)
-          self.userInfo = userInfo
-        }
-        self.$apply()
-      })
+    async onLoad() {
+      let userInfo = await this.$parent.getUserInfo()
+      Object.assign(this.userInfo, userInfo)
       // 获取本地存储的背景图片
       try {
         var bgImage = wx.getStorageSync(MessageBackgroundImg)
@@ -281,6 +275,7 @@
         }
       } catch (e) {
       }
+      this.$apply()
     }
   }
 </script>

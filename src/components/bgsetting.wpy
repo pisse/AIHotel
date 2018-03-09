@@ -49,6 +49,18 @@
     computed = {}
 
     methods = {
+      longTap () {
+        console.log('longlong tap')
+        // 短时震动
+        wx.vibrateLong({
+          success: function () {
+            console.log('震动成功')
+          },
+          fail: function () {
+            console.log('震动失败')
+          }
+        })
+      },
       tap (e) {
         wx.navigateTo({
           url: '../background/background'
@@ -96,14 +108,12 @@
     events = {}
 
     onReady () {
-      console.log('readdddd')
     }
 
     onLoad () {
       let self = this
       wx.getSystemInfo({
         success: function (res) {
-          console.log(res)
           self.windowHight = res.windowHeight
         }
       })

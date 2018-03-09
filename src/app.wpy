@@ -37,9 +37,10 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
-      // 'test/test',
+      // 'pages/mall/mall',
       'pages/index/index',
-      'pages/background/background'
+      'pages/background/background',
+      'pages/mall/mall'
     ],
     window: {
       backgroundTextStyle: 'dark',
@@ -71,7 +72,7 @@ export default class extends wepy.app {
         return p
       },
       success (obj) {
-        console.log('request success')
+        // console.log('request success')
         let sessionID = self.getCookie(obj.header['Set-Cookie'], 'restifySessionid')
         if (sessionID) {
           wx.setStorage({
@@ -87,16 +88,17 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    console.log('onlaunch')
+    // console.log('onlaunch')
     this.auth()
     let self = this
     wx.getSystemInfo({
       success: function (res) {
+        console.log(res)
         self.systemInfo = res
         // console.log('height calculate end')
         // self.$broadcast('reset-client-height')
         const resFootHeight = self.globalData.footHeight * res.windowWidth / 750
-        console.log('calcute footheight: ' + resFootHeight)
+        // console.log('calcute footheight: ' + resFootHeight)
         self.globalData.clientHeight = res.windowHeight - resFootHeight
       },
       fail: function () {
@@ -112,7 +114,7 @@ export default class extends wepy.app {
     wx.checkSession({
       success: function () {
         // session 未过期，并且在本生命周期一直有效
-        console.log('session 未过期')
+        // console.log('session 未过期')
       },
       fail: function () {
         // 登录态过期
@@ -135,7 +137,7 @@ export default class extends wepy.app {
               code: res.code
             }
           }).then(res => {
-            console.log(res)
+            // console.log(res)
           })
         } else {
           console.log('获取用户登录态失败！' + res.errMsg)
@@ -171,18 +173,21 @@ export default class extends wepy.app {
     })
   }
 
-  getUserInfo(cb) {
-    const that = this
+  async getUserInfo(cb) {
     if (this.globalData.userInfo) {
       cb && cb(this.globalData.userInfo)
       return this.globalData.userInfo
     }
-    wepy.getUserInfo({
+    let data = await wepy.getUserInfo()
+    // console.log(userInfo)
+    this.globalData.userInfo = data.userInfo
+    return this.globalData.userInfo
+   /* wepy.getUserInfo({
       success (res) {
         that.globalData.userInfo = res.userInfo
         cb && cb(res.userInfo)
       }
-    })
+    }) */
   }
 
   getCookie(str, name) {

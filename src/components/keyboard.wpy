@@ -16,10 +16,15 @@
       border-top-left-radius: 50rpx;
       background-color: rgba(255,255,255, 1);
       color: #000;
+      overflow:hidden;
       .input{
         padding: 0 30rpx;
         height: 100%;
         line-height: 100%;
+        display: none;
+        &.text-show{
+          display: inherit;
+        }
       }
       .btn{
         padding: 0;
@@ -77,21 +82,21 @@
 <template>
   <view class="keyboard-wrap">
     <view class="input-wrap">
-      <input wx:if="{{textType}}" class="input"
+      <input class="input {{textType? 'text-show':''}}"
              value="{{sendValue}}"
+             focus="{{autoFocus}}"
              confirm-type="send"
              confirm-hold="true"
              cursor-spacing="30"
              bindconfirm="confirm"
              bindblur="blur"
-             placeholder="Type message..."/>
-      <button hover-class="btn-hover" wx:else  class="btn"
-              hover-start-time="10"
-              hover-stay-time="20"
-              @longpress="longTap"
+             placeholder=""/>
+      <button hover-class="btn-hover"  class="btn"
+              hover-start-time="1"
+              hover-stay-time="1"
               @touchstart="touchStart"
               @touchmove="touchMove"
-              @touchend="tapEnd">
+              @touchend="touchEnd">
         <text>{{btnText}}</text><image class="voice-icon" mode="aspectFit" src="{{voice_icon}}"></image>
       </button>
     </view>
@@ -102,7 +107,7 @@
 
     <!--<speach id="toast"></speach>-->
   </view>
-</template>icon
+</template>
 <script>
   import wepy from 'wepy'
   import baseMixin from '../mixins/base'
@@ -112,6 +117,10 @@
 
   export default class Panel extends wepy.component {
     data = {
+      systemInfo: null,
+      vibrateTimer: '',
+      recordCancel: false,
+      autoFocus: false,
       recorderManager: null,
       touchDot: 0,
       touchMoveDot: 0,
@@ -120,7 +129,8 @@
       recs: [],
       voice_icon: '/common/img/icon_yuyin@2x.png',
       keyboard_icon: '/common/img/icon_keyboard@2x.png',
-      btnText: '按住讲话'
+      btnText: '按住讲话',
+      count: 1
     }
 
     watch = {
@@ -138,157 +148,53 @@
     mixins = [baseMixin]
 
     methods = {
-      btnTap (e) {
-        console.log('btn tap')
-      },
       toggle (e) {
         this.textType = !this.textType
+        this.autoFocus = this.textType
         this.$invoke('../speach', 'hide', {})
-        console.log('toggle')
       },
       touchStart (e) {
-        console.log('start')
-        console.log(e)
+        console.log('touch start')
+        this.recordStartTime = new Date().getTime()
         this.touchDot = e.touches[0]['pageY']
+        this.recordCancel = false
+        this.longpress()
       },
       touchMove (e) {
         this.touchMoveDot = e.touches[0]['pageY']
-        if (this.touchMoveDot - this.touchDot > 50) {
-          // this.$invoke('../speach', 'cancel', {})
+        // console.log(this.touchMoveDot - this.touchDot)
+        if (this.touchMoveDot - this.touchDot < -50) {
+          // console.log('quxiao fasong')
+          this.recordCancel = true
+          this.$invoke('../speach', 'cancel', {})
+        } else {
+          // hide cancel
+          this.recordCancel = false
+          this.$invoke('../speach', 'hideCancel', {})
         }
       },
-      touchend (e) {
-        this.touchMoveDot = e.touches[0]['pageY']
-        if (this.touchMoveDot - this.touchDot > 50) {
-          console.log('operate cancel')
-          this.$invoke('../speach', 'cancel', {})
-        }
+      touchEnd (e) {
+        console.log('touch end')
+        const self = this
+        this.btnText = '按住讲话'
+        setTimeout(() => { self.recorderManager.stop() }, 300)
+      },
+      shortTap (e) {
+        console.log('short tap')
       },
       longTap (e) {
-        const self = this
-        this.btnText = '松开发送'
-        /* let promise = this.$invoke('speachtoast', 'show', {
-          title: '自定义标题',
-          img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
-        }) */
-
-        // 短时震动
-        wx.vibrateLong({
-          success: function () {
-            console.log('震动成功')
-          },
-          fail: function () {
-            console.log('震动失败')
-          }
-        })
-
-        this.$invoke('../speach', 'show', {
-          // img: '../common/img/speaching.png',
-          tip: ' ',
-          title: '聆听中,请说话...',
-          notice: '手指上划,取消发送',
-          duration: 1000 * 60
-          // no_mask: true
-        })
-
-        const recorderManager = wx.getRecorderManager()
-        this.recorderManager = recorderManager
-
-        recorderManager.onStart(() => {
-          console.log('recorder start')
-        })
-        recorderManager.onResume(() => {
-          console.log('recorder resume')
-        })
-        recorderManager.onPause(() => {
-          console.log('recorder pause')
-        })
-        recorderManager.onStop((res) => {
-          console.log('recorder stop', res)
-          const { tempFilePath } = res
-
-          this.$invoke('../speach', 'show', {
-            tip: '',
-            title: '请稍后',
-            notice: '',
-            duration: 1000 * 10
-          })
-
-          // 上传语音文件至服务器
-          wepy.uploadFile({
-            url: self.host + 'voice/recognize',
-            filePath: tempFilePath,
-            name: 'record',
-            // header: {}, // 设置请求的 header
-            formData: {
-              'msg': 'voice'
-            }, // HTTP 请求中其他额外的 form data
-            complete: function () {
-              // complete
-              console.log('complete')
-              self.$invoke('../speach', 'hide', {})
-            }
-          }).then(res => {
-            // success
-            // let result = JSON.parse(res.data)
-            const json = JSON.parse(res.data)
-            const voiceText = json.data.result || []
-            // console.log(voiceText)
-            // send a voice message
-            console.log(voiceText)
-            if (json.data.err_no) {
-              self.$emit('add-message', {
-                type: 'me',
-                content: '对不起，没听清楚您说什么~'
-              })
-            } else {
-              self.$emit('add-message', {
-                type: 'customer',
-                content: voiceText[0].slice(0, voiceText[0].length - 1)
-              })
-            }
-
-            // self.voiceText = json.data.result[0]
-            // self.$apply()
-            // var jsonMsg = JSON.parse(json.msg)
-            // console.log(jsonMsg.result)
-            /*
-             wepy.navigateTo({
-             url: '../voicePage/voicePage?voiceData=' + jsonMsg.result.join('')
-             })
-             */
-          }, err => {
-            console.log(err)
-          }).then(() => {
-            self.$invoke('../speach', 'hide', {})
-          })
-        })
+        this.longpress()
         /* recorderManager.onFrameRecorded((res) => {
           const { frameBuffer } = res
           console.log('frameBuffer.byteLength', frameBuffer.byteLength)
         }) */
-
-        const options = {
-          // duration: 3000,
-          sampleRate: 16000,
-          numberOfChannels: 1,
-          encodeBitRate: 64000,
-          format: 'mp3'
-          // frameSize: 10
-        }
-
-        recorderManager.start(options)
         // this.$invoke('counter', 'minus', 45, 6)
       },
-      tapEnd () {
-        this.btnText = '按住讲话'
-        if (this.recorderManager) {
-          this.recorderManager.stop()
-        }
-      },
       confirm (e) {
-        console.log('confirm')
-        let value = e.detail.value
+        let value = this.trim(e.detail.value)
+        if (!value) {
+          return
+        }
         this.sendValue = null // Math.random()
         this.setData({
           sendValue: ''
@@ -316,17 +222,159 @@
       }
     }
 
+    longpress () {
+      const self = this
+      console.log('longTap')
+      this.btnText = '松开发送'
+      /* let promise = this.$invoke('speachtoast', 'show', {
+       title: '自定义标题',
+       img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
+       }) */
+      const options = {
+        // duration: 3000,
+        sampleRate: 16000,
+        numberOfChannels: 1,
+        encodeBitRate: 64000,
+        format: 'mp3'
+        // frameSize: 10
+      }
+      if (self.recorderManager) {
+        self.recorderManager.start(options)
+      }
+      this.startVibrate()
+
+      this.$invoke('../speach', 'show', {
+        // img: '../common/img/speaching.png',
+        tip: ' ',
+        title: '聆听中,请说话...',
+        notice: '手指上划,取消发送',
+        duration: 1000 * 60
+        // no_mask: true
+      })
+    }
+    startVibrate () {
+      // 短时震动
+      wx.vibrateLong({
+        success: function () {
+          console.log('震动成功')
+        },
+        fail: function () {
+          console.log('震动失败')
+        }
+      })
+      /* if (this.vibrateTimer) {
+        clearTimeout(this.vibrateTimer)
+        this.vibrateTimer = null
+      }
+      this.vibrateTimer = setTimeout(() => {
+        wx.vibrateLong({
+          success: function () {
+            console.log('震动成功')
+          },
+          fail: function () {
+            console.log('震动失败')
+          }
+        })
+      }, 200) */
+    }
+    initRecordManager () {
+      const self = this
+      const recorderManager = wx.getRecorderManager()
+      this.recorderManager = recorderManager
+
+      recorderManager.onStart(() => {
+        console.log('recorder start')
+      })
+      recorderManager.onResume(() => {
+        console.log('recorder resume')
+      })
+      recorderManager.onPause(() => {
+        console.log('recorder pause')
+      })
+      recorderManager.onStop((res) => {
+        console.log('recorder stop', res)
+        const { tempFilePath } = res
+
+        // is
+        if (this.recordCancel) {
+          this.$invoke('../speach', 'hide', {})
+          return
+        }
+        this.$invoke('../speach', 'show', {
+          tip: '',
+          title: '请稍后',
+          notice: '',
+          duration: 1000 * 10
+        })
+
+        // 上传语音文件至服务器
+        wepy.uploadFile({
+          url: self.host + 'voice/recognize',
+          filePath: tempFilePath,
+          name: 'record',
+          // header: {}, // 设置请求的 header
+          formData: {
+            'msg': 'voice'
+          }, // HTTP 请求中其他额外的 form data
+          complete: function () {
+            // complete
+            console.log('complete')
+            self.$invoke('../speach', 'hide', {})
+          }
+        }).then(res => {
+          // success
+          // let result = JSON.parse(res.data)
+          const json = JSON.parse(res.data)
+          const voiceText = json.data.result || []
+          // console.log(voiceText)
+          // send a voice message
+          console.log(voiceText)
+          if (json.data.err_no) {
+            self.$emit('add-message', {
+              type: 'me',
+              content: '对不起，没听清楚您说什么~'
+            })
+          } else {
+            self.$emit('add-message', {
+              type: 'customer',
+              content: voiceText[0].slice(0, voiceText[0].length - 1)
+            })
+          }
+
+          // self.voiceText = json.data.result[0]
+          // self.$apply()
+          // var jsonMsg = JSON.parse(json.msg)
+          // console.log(jsonMsg.result)
+          /*
+           wepy.navigateTo({
+           url: '../voicePage/voicePage?voiceData=' + jsonMsg.result.join('')
+           })
+           */
+        }, err => {
+          console.log(err)
+        }).then(() => {
+          self.$invoke('../speach', 'hide', {})
+        })
+      })
+
+      recorderManager.onError(() => {
+        console.log('record error')
+      })
+    }
+
     onLoad () {
       let self = this
       this.initDevice()
+      this.initRecordManager()
+      // this.root = this.getRoot()
       this.keyboard_icon = this.getImg('/common/img/icon_record', 'png')
       this.voice_icon = this.getImg('/common/img/icon_yuyin', 'png')
-      this.recs = [
+      /* this.recs = [
         {key: 'roomService', text: '客房服务'},
         {key: 'texiService', text: '出行租车'},
         {key: 'foodService', text: '美食推荐'},
         {key: 'accidentService', text: '故障服务'}
-      ]
+      ] */
       this.$apply()
       /*
       wepy.request('getRecommend').then((d) => {})

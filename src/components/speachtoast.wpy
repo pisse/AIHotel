@@ -171,6 +171,10 @@
       this.showCancel = true
       this.$apply()
     }
+    hideCancel () {
+      this.showCancel = false
+      this.$apply()
+    }
 
     toast (data) {
       let err = false
@@ -205,6 +209,7 @@
       console.log('hide')
       clearTimeout(this.__timeout)
       this.reveal = false
+      this.showCancel = false
 
       let animation = wx.createAnimation()
       animation.opacity(0).step()

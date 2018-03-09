@@ -15,9 +15,16 @@
       // padding:25rpx 30rpx;
       border-bottom-left-radius: 26rpx;
       border-bottom-right-radius: 26rpx;
+      word-break:break-all;
 
       .title{
         padding:25rpx 30rpx;
+        .text-action{
+          text-decoration: underline;
+        }
+        .task_question{
+          color: #060606;
+        }
       }
 
       .message-img-wrap{
@@ -121,10 +128,16 @@
 <template>
   <view class="message-wrap {{item.type}}">
     <view wx:if="{{item.type == 'customer' ||  item.type == 'me'}}" class="message {{item.img ? 'has-img': ''}} {{item.content? '': 'no-text'}} {{item.list&&item.list.length>0 ? 'has-list': ''}}">
-      <view class="title" wx:if="{{item.content}}">{{item.content}}</view>
+      <view class="title" wx:if="{{item.content}}">
+        <view class="task_question" wx:if="{{item.task_question}}">
+          {{item.task_question}}
+        </view>
+        {{item.content}}
+        <text class="text-action" if="{{item.action}}" bindtap="tapAction({{item}})">{{item.action}}</text>
+      </view>
 
       <view class="message-img-wrap" slot="img" wx:if="{{item.img}}">
-        <image class="message-img" mode="widthFix" src="{{item.img}}"></image>
+        <image class="message-img" mode="widthFix" src="{{item.img}}" bindtap="tapAction({{item}})"></image>
       </view>
 
       <view class="message-list-wrap" slot="img" wx:if="{{item.list}}">
@@ -173,13 +186,16 @@
 
     methods = {
       selectQuestion (item) {
-        console.log(item)
+        // console.log(item)
         this.$emit('add-message', item
           /* {
           type: 'me',
           content: item.answer
         } */
         )
+      },
+      tapAction (item) {
+        this.$emit('action-message', item)
       }
     }
 
