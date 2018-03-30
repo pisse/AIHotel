@@ -120,6 +120,7 @@
       systemInfo: null,
       vibrateTimer: '',
       recordCancel: false,
+      recordEnd: true,
       autoFocus: false,
       recorderManager: null,
       touchDot: 0,
@@ -157,7 +158,7 @@
         console.log('touch start')
         this.recordStartTime = new Date().getTime()
         this.touchDot = e.touches[0]['pageY']
-        this.recordCancel = false
+        this.recordEnd = false
         this.longpress()
       },
       touchMove (e) {
@@ -176,8 +177,9 @@
       touchEnd (e) {
         console.log('touch end')
         const self = this
+        this.recordEnd = true
         this.btnText = '按住讲话'
-        setTimeout(() => { self.recorderManager.stop() }, 300)
+        setTimeout(() => { console.log('emit stop'); self.recorderManager.stop() }, 300)
       },
       shortTap (e) {
         console.log('short tap')
@@ -245,8 +247,9 @@
 
       this.$invoke('../speach', 'show', {
         // img: '../common/img/speaching.png',
-        tip: ' ',
-        title: '聆听中,请说话...',
+        tip: '聆听中,请说话.. ',
+        // title: '聆听中,请说话...',
+        img: true,
         notice: '手指上划,取消发送',
         duration: 1000 * 60
         // no_mask: true
@@ -262,20 +265,6 @@
           console.log('震动失败')
         }
       })
-      /* if (this.vibrateTimer) {
-        clearTimeout(this.vibrateTimer)
-        this.vibrateTimer = null
-      }
-      this.vibrateTimer = setTimeout(() => {
-        wx.vibrateLong({
-          success: function () {
-            console.log('震动成功')
-          },
-          fail: function () {
-            console.log('震动失败')
-          }
-        })
-      }, 200) */
     }
     initRecordManager () {
       const self = this
@@ -284,6 +273,10 @@
 
       recorderManager.onStart(() => {
         console.log('recorder start')
+        if (this.recordEnd) {
+          console.log('stop again')
+          recorderManager.stop()
+        }
       })
       recorderManager.onResume(() => {
         console.log('recorder resume')
@@ -357,7 +350,8 @@
         })
       })
 
-      recorderManager.onError(() => {
+      recorderManager.onError((e) => {
+        console.log(e)
         console.log('record error')
       })
     }

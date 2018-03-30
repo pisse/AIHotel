@@ -1,4 +1,4 @@
-<style lang="css">
+<style lang="less">
   .wepytoast {
     display: none;
   }
@@ -40,6 +40,23 @@
   }
   .wepytoast__bd__img {
     margin-top: 3px;
+    display: flex;
+    justify-content: space-between;
+    .spot{
+      width: 4rpx;
+      height: 8rpx;
+      margin: 0 8rpx;
+      border-radius: 3px;
+      background-color: #fff;
+    }
+    .centerSpot{
+      width: 24rpx;
+      border: 6rpx solid #fff;
+      height: 24rpx;
+      border-radius: 50%;
+      margin-top: -12rpx;
+      background-color: transparent;
+    }
   }
   .wepytoast__bd__img_desc {
     width: 55px;
@@ -84,7 +101,10 @@
       </block>
       <block wx:if="{{img}}">
         <view class="wepytoast__bd__img {{imgClassName || ''}}">
-          <image class="wepytoast__bd__img_desc" src="{{img}}" mode="{{imgMode || 'scaleToFill'}}"></image>
+          <!--<image class="wepytoast__bd__img_desc" src="{{img}}" mode="{{imgMode || 'scaleToFill'}}"></image>-->
+          <repeat for="{{spotNum}}" key="index" index="index" item="item">
+            <view class="spot {{index==(spotNum-1)/2 ? 'centerSpot':''}}" animation="{{anis[index]}}"></view>
+          </repeat>
         </view>
       </block>
       <block wx:if="{{notice}}">
@@ -98,17 +118,20 @@
 
   export default class Toast extends wepy.component {
     data = {
+      spotNum: 13,
+      anis: {},
       reveal: false,
       img: '',
       animationData: '',
       imgClassName: '',
       imgMode: 'scaleToFill',
-      title: '载入中...',
+      title: '',
       tip: '',
       notice: '',
       titleClassName: '',
       no_mask: false,
-      showCancel: false
+      showCancel: false,
+      animationTimers: {}
     }
 
     methods = {}
@@ -122,6 +145,8 @@
       for (let k in data) {
         this[k] = data[k]
       }
+      this.img = data.img || false
+      this.title = data.title || ''
 
       this.$apply()
 
@@ -133,6 +158,13 @@
         this.reveal = true
         this.$apply()
       }, 30)
+
+      this.clearImgAnimation()
+      if (data.img) {
+        for (let i = 0; i < this.spotNum; i++) {
+          this.createImgAnimation(i)
+        }
+      }
 
       if (data.duration === 0) {
         // success callback after toast showed
@@ -163,6 +195,34 @@
             typeof data.success === 'function' && data.success(data)
           }, (data.duration || 1500) + 400)
         }
+      }
+    }
+
+    createImgAnimation (idx) {
+      if (idx == (this.spotNum - 1) / 2) {
+        return
+      }
+      var animation = wx.createAnimation({
+        duration: 500,
+        timingFunction: "ease",
+        delay:(idx % 6) * 100
+      })
+      var i = 0
+      this.animationTimers[idx] = setInterval(() => {
+        i++
+        let height = i % 2 ? 2 : 0
+        let opacity = i % 2
+        animation.scaleY(height).opacity(opacity).step()
+        //this.animationData = animation.export()
+        this.anis[idx] = animation.export()
+        this.$apply()
+      }, 500)
+    }
+    clearImgAnimation () {
+      for (let i = 0; i < this.spotNum; i++) {
+        this.anis[i] = null
+        clearInterval(this.animationTimers[i])
+        this.animationTimers[i] = null
       }
     }
 
@@ -214,6 +274,8 @@
       let animation = wx.createAnimation()
       animation.opacity(0).step()
       this.animationData = animation.export()
+
+      this.clearImgAnimation()
 
       this.$apply()
 

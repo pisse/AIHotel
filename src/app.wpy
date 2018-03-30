@@ -38,6 +38,7 @@ export default class extends wepy.app {
   config = {
     pages: [
       // 'pages/mall/mall',
+      // 'test/test2',
       'pages/index/index',
       'pages/background/background',
       'pages/mall/mall'

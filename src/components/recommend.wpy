@@ -46,8 +46,8 @@
       let self = this
       this.recs = [
         {key: 'roomService', text: '客房服务'},
-        {key: 'texiService', text: '出行租车'},
-        {key: 'foodService', text: '美食推荐'},
+        {key: 'texiService', text: '预定餐厅'},
+        {key: 'foodService', text: '会议信息'},
         {key: 'accidentService', text: '故障服务'}
       ]
       this.$apply()

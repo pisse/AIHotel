@@ -1,25 +1,54 @@
 <style lang="less">
-  .userinfo {
-    padding-top: 15rpx;
+  .nav-wrap {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    // height: 128rpx;
+    height: 55rpx;
+    padding-top: 0;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    // display: flex;
+    // flex-direction: column;
+    // align-items: flex-start;
+    background-color: #2A2A2A;
+    .nav-bar {
+      width: 100%;
+      font-size: 36rpx;
+      text-align: center;
+      color: #fff;
+      // height:110rpx;
+      height:55rpx;
+      line-height:110rpx;
+      // margin-top:30rpx;
+    }
   }
   .avatar-bg{
+    position: absolute;
+    // top: 73rpx;
+    top: 0rpx;
     padding: 2rpx;
-    background-image: linear-gradient( 135deg, #B98334, #ffffff);
+    // background-image: linear-gradient( 135deg, #B98334, #ffffff);
+    background-image: linear-gradient(54deg, #424242 0%, #2A2A2A 100%);
     line-height: 0;
     border-radius: 50%;
     margin-left: 30rpx;
+    width: 110rpx;
+    height: 110rpx;
+    border: 2rpx solid #81715D;
+    // opacity: 0.8;
   }
 
   .userinfo-avatar {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
+    width: 70rpx;
+    height: 54rpx;
+    margin-left: 20rpx;
+    margin-top: 28rpx;
+    // border-radius: 50%;
     // border:2rpx solid red;
 
+  }
+  .scroll_view {
+    padding-top: 160rpx;
   }
 
   .userinfo-nickname {
@@ -40,17 +69,17 @@
 </style>
 <template>
   <view class="container"  style="background-image: {{previewBg}}">
+    <view class="nav-wrap">
+      <view class="nav-bar"></view>
+      <view class="avatar-bg"><image class="userinfo-avatar" src="{{ headImg }}"/></view>
+      <!--<view class="userinfo-nickname">{{ userInfo.nickName }}</view>-->
+    </view>
     <view class="page-bd">
       <scroll-view  scroll-y="true" style="height: {{clientHeight + 'px'}}"
                     scroll-with-animation="true"
                     enable-back-to-top="true"
                     scroll-top="{{scrollTop}}">
-        <view id="scroll_view">
-          <view class="userinfo" @tap="handleViewTap">
-            <view class="avatar-bg"><image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}"/></view>
-            <!--<view class="userinfo-nickname">{{ userInfo.nickName }}</view>-->
-          </view>
-
+        <view id="scroll_view" class="scroll_view">
           <repeat for="{{messages}}" key="index" index="index" item="item">
             <message :item="item" @add-message.user="messageFeedback" @action-message.user="messageAction"></message>
           </repeat>
@@ -79,7 +108,6 @@
         <input class="input"  cursor-spacing="80" type="password" value="{{cardNum}}" bindinput="cardIpt" placeholder="身份证后四位" />
       </view>
     </wxc-dialog>
-
 
     <!--<import src="../../packages/wxParse/wxParse.wxml"/>
     <template is="wxParse" data="{{wxParseData:article.nodes}}"/>-->
@@ -128,7 +156,7 @@
 
     data = {
       // toView: '',
-      test: 1,
+      headImg: '',
       article: {
         nodes: [1, 2]
       },
@@ -497,6 +525,7 @@
       this.article = htmlContent['article'] */
 
       this.userInfo = await this.$parent.getUserInfo()
+      this.headImg = this.getImg('/common/img/head', 'png')
       self.$apply()
       /* this.$parent.getUserInfo(function (userInfo) {
         console.log(userInfo)
