@@ -51,7 +51,7 @@
       spotNum: 12,
       anis: {
         '0': null
-      },
+      }
     }
     computed = {
     }
@@ -77,8 +77,8 @@
     createAnimation (idx) {
       var animation = wx.createAnimation({
         duration: 500,
-        timingFunction: "ease",
-        delay:(idx % 6) * 100
+        timingFunction: 'ease',
+        delay: (idx % 6) * 100
       })
       var i = 0
       setInterval(() => {
@@ -86,7 +86,7 @@
         let height = i % 2 ? 4 : 0
         let opacity = i % 2
         animation.scaleY(height).opacity(opacity).step()
-        //this.animationData = animation.export()
+        // this.animationData = animation.export()
         this.anis[idx] = animation.export()
         this.$apply()
       }, 500)

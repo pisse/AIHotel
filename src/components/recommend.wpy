@@ -27,6 +27,7 @@
 </template>
 <script>
   import wepy from 'wepy'
+  import globalization from '@/international/globalization.js'
 
   export default class Panel extends wepy.component {
     data = {
@@ -45,10 +46,10 @@
     onLoad () {
       let self = this
       this.recs = [
-        {key: 'roomService', text: '客房服务'},
-        {key: 'texiService', text: '预定餐厅'},
-        {key: 'foodService', text: '会议信息'},
-        {key: 'accidentService', text: '故障服务'}
+        {key: 'roomService', text: globalization['roomService']},
+        {key: 'texiService', text: globalization['bookRestaurant']},
+        {key: 'foodService', text: globalization['conferenceInfo']},
+        {key: 'accidentService', text: globalization['maintenanceReport']}
       ]
       this.$apply()
       /*

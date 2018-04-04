@@ -204,8 +204,8 @@
       }
       var animation = wx.createAnimation({
         duration: 500,
-        timingFunction: "ease",
-        delay:(idx % 6) * 100
+        timingFunction: 'ease',
+        delay: (idx % 6) * 100
       })
       var i = 0
       this.animationTimers[idx] = setInterval(() => {
@@ -213,7 +213,7 @@
         let height = i % 2 ? 2 : 0
         let opacity = i % 2
         animation.scaleY(height).opacity(opacity).step()
-        //this.animationData = animation.export()
+        // this.animationData = animation.export()
         this.anis[idx] = animation.export()
         this.$apply()
       }, 500)

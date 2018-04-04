@@ -114,6 +114,7 @@
   // import Speach from './speachtoast'
   // import Counter from './counter' // alias example
   // import Toast from 'wepy-com-toast'
+  import globalization from '@/international/globalization.js'
 
   export default class Panel extends wepy.component {
     data = {
@@ -130,7 +131,7 @@
       recs: [],
       voice_icon: '/common/img/icon_yuyin@2x.png',
       keyboard_icon: '/common/img/icon_keyboard@2x.png',
-      btnText: '按住讲话',
+      btnText: globalization['talk'],
       count: 1
     }
 
@@ -178,7 +179,7 @@
         console.log('touch end')
         const self = this
         this.recordEnd = true
-        this.btnText = '按住讲话'
+        this.btnText = globalization['talk'] // '按住讲话'
         setTimeout(() => { console.log('emit stop'); self.recorderManager.stop() }, 300)
       },
       shortTap (e) {
@@ -227,7 +228,7 @@
     longpress () {
       const self = this
       console.log('longTap')
-      this.btnText = '松开发送'
+      this.btnText = globalization['send'] // '松开发送'
       /* let promise = this.$invoke('speachtoast', 'show', {
        title: '自定义标题',
        img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
@@ -247,10 +248,10 @@
 
       this.$invoke('../speach', 'show', {
         // img: '../common/img/speaching.png',
-        tip: '聆听中,请说话.. ',
+        tip: globalization['listening'], // '聆听中,请说话.. ',
         // title: '聆听中,请说话...',
         img: true,
-        notice: '手指上划,取消发送',
+        notice: globalization['upCancel'], // '手指上划,取消发送',
         duration: 1000 * 60
         // no_mask: true
       })
@@ -259,10 +260,10 @@
       // 短时震动
       wx.vibrateLong({
         success: function () {
-          console.log('震动成功')
+          console.log(globalization['vibrateSuccess'])
         },
         fail: function () {
-          console.log('震动失败')
+          console.log(globalization['vibrateFail'])
         }
       })
     }
@@ -295,7 +296,7 @@
         }
         this.$invoke('../speach', 'show', {
           tip: '',
-          title: '请稍后',
+          title: globalization['hold'],
           notice: '',
           duration: 1000 * 10
         })
@@ -325,7 +326,7 @@
           if (json.data.err_no) {
             self.$emit('add-message', {
               type: 'me',
-              content: '对不起，没听清楚您说什么~'
+              content: globalization['hearError'] // '对不起，没听清楚您说什么~'
             })
           } else {
             self.$emit('add-message', {

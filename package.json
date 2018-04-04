@@ -11,13 +11,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@minui/wxc-dialog": "^1.0.8",
     "@miui/wxc-dialogn": "^1.0.8",
     "babel-plugin-syntax-export-extensions": "^6.13.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-export-extensions": "^6.22.0",
     "babel-preset-env": "^1.6.1",
-    "wepy": "^1.6.0",
+    "wepy": "^1.7.1",
     "wepy-async-function": "^1.4.4",
     "wepy-com-toast": "^1.0.2"
   },

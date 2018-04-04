@@ -94,7 +94,6 @@ export default class extends wepy.app {
     let self = this
     wx.getSystemInfo({
       success: function (res) {
-        console.log(res)
         self.systemInfo = res
         // console.log('height calculate end')
         // self.$broadcast('reset-client-height')

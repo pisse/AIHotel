@@ -48,7 +48,7 @@
 
   }
   .scroll_view {
-    padding-top: 160rpx;
+    padding-top: 100rpx;
   }
 
   .userinfo-nickname {
@@ -129,6 +129,8 @@
   import baseMixin from '@/mixins/base'
   import util from '@/utils/util.js'
 
+  import globalization from '@/international/globalization.js'
+
   // import wxParse from '@/packages/wxParse/wxParse.js'
 
   const MessageBackgroundImg = 'message-background-image'
@@ -197,10 +199,11 @@
       ],
       voiceText: '',
       userInfo: {
-        nickName: '加载中...'
+        nickName: ''
       },
       customerInfo: null,
-      scrollTimer: null
+      scrollTimer: null,
+      globalization: {}
     }
 
     computed = {
@@ -515,6 +518,10 @@
         // console.log('index page2, clientHeight' + this.clientHeight)
         // self.$apply()
       }
+
+      wx.setNavigationBarTitle({
+        title: globalization['assistant']
+      })
 
       // 房客认证信息
       let customerInfo = wx.getStorageSync('customerInfo')

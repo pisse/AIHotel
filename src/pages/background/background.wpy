@@ -105,8 +105,8 @@
     </view>
 
     <view class="foot-btns">
-      <view class="cancel" bindtap="cancel">恢复默认</view>
-      <view class="confirm {{isActive ? 'active': ''}}" bindtap="confirm">应用</view>
+      <view class="cancel" bindtap="cancel">{{resetText}}</view>
+      <view class="confirm {{isActive ? 'active': ''}}" bindtap="confirm">{{applyText}}</view>
     </view>
 
   </view>
@@ -116,6 +116,7 @@
   import wepy from 'wepy'
   import Message from '@/components/message' // alias example
   import baseMixin from '@/mixins/base'
+  import globalization from '@/international/globalization.js'
 
   const MessageBackgroundImg = 'message-background-image'
 
@@ -136,6 +137,8 @@
     mixins = [baseMixin]
 
     data = {
+      resetText: globalization['reset'],
+      applyText: globalization['apply'],
       originBg: '',
       previewBg: 'linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139)',
       bgcolors: [
@@ -266,6 +269,9 @@
     async onLoad() {
       let userInfo = await this.$parent.getUserInfo()
       Object.assign(this.userInfo, userInfo)
+      wx.setNavigationBarTitle({
+        title: globalization['backgroundSetting']
+      })
       // 获取本地存储的背景图片
       try {
         var bgImage = wx.getStorageSync(MessageBackgroundImg)
