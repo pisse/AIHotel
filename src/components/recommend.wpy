@@ -28,6 +28,7 @@
 <script>
   import wepy from 'wepy'
   import globalization from '@/international/globalization.js'
+  import baseMixin from '@/mixins/base'
 
   export default class Panel extends wepy.component {
     data = {
@@ -43,13 +44,17 @@
       }
     }
 
+    mixins = [baseMixin]
+
     onLoad () {
+      console.log(1212)
       let self = this
+      this.globalization = this.getLanguage()
       this.recs = [
-        {key: 'roomService', text: globalization['roomService']},
-        {key: 'texiService', text: globalization['bookRestaurant']},
-        {key: 'foodService', text: globalization['conferenceInfo']},
-        {key: 'accidentService', text: globalization['maintenanceReport']}
+        {key: 'roomService', text: this.globalization['roomService']},
+        {key: 'texiService', text: this.globalization['bookRestaurant']},
+        {key: 'foodService', text: this.globalization['conferenceInfo']},
+        {key: 'accidentService', text: this.globalization['maintenanceReport']}
       ]
       this.$apply()
       /*

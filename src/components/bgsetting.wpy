@@ -40,12 +40,6 @@
   import globalization from '@/international/globalization.js'
 
   export default class Index extends wepy.page {
-    config = {
-      navigationBarTitleText: '聊天背景'
-    }
-    components = {
-    }
-
     mixins = [baseMixin]
 
     data = {
@@ -55,21 +49,9 @@
     computed = {}
 
     methods = {
-      longTap () {
-        console.log('longlong tap')
-        // 短时震动
-        wx.vibrateLong({
-          success: function () {
-            console.log('震动成功')
-          },
-          fail: function () {
-            console.log('震动失败')
-          }
-        })
-      },
       tap (e) {
         wx.navigateTo({
-          url: '../background/background'
+          url: '../setting/setting'
         })
       },
       touchMove (e) {

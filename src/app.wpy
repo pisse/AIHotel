@@ -41,7 +41,8 @@ export default class extends wepy.app {
       // 'test/test2',
       'pages/index/index',
       'pages/background/background',
-      'pages/mall/mall'
+      'pages/mall/mall',
+      'pages/setting/setting'
     ],
     window: {
       backgroundTextStyle: 'dark',

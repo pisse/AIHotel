@@ -129,7 +129,8 @@
   import baseMixin from '@/mixins/base'
   import util from '@/utils/util.js'
 
-  import globalization from '@/international/globalization.js'
+  // import languages from '@/international/globalization.js'
+  // const globalization = require('@/international/globalization.js')
 
   // import wxParse from '@/packages/wxParse/wxParse.js'
 
@@ -476,10 +477,12 @@
     }
 
     onReady () {
+      console.log('index ready')
       this.pageScrollToBottom()
     }
 
     onShow () {
+      console.log('index show')
       /* let date = new Date()
       this.pushMessage({
         type: 'tip',
@@ -495,9 +498,15 @@
         }
       } catch (e) {
       }
+
+      this.globalization = this.getLanguage()
+      wx.setNavigationBarTitle({
+        title: this.globalization['assistant']
+      })
     }
 
     async onLoad() {
+      console.log('index load')
       let self = this
       // console.log(this.$wxapp.globalData)
       // this.rpx2px()
@@ -518,10 +527,6 @@
         // console.log('index page2, clientHeight' + this.clientHeight)
         // self.$apply()
       }
-
-      wx.setNavigationBarTitle({
-        title: globalization['assistant']
-      })
 
       // 房客认证信息
       let customerInfo = wx.getStorageSync('customerInfo')

@@ -1,12 +1,20 @@
 import wepy from 'wepy'
+import languages from '@/international/globalization.js'
 
 export default class testMixin extends wepy.mixin {
   data = {
     mixin: 'This is mixin data.',
     host: 'https://jdzs.wezhuiyi.com/node/',
     sessionName: 'sessionID',
-    pixelRatio: 2
+    pixelRatio: 2,
+    globalization: {},
+    langID: {
+      zh_CN: 1537,
+      en: 1737,
+      zh_HK: 1637
+    }
   }
+
   methods = {
     tap () {
       this.mixin = 'mixin data was changed'
@@ -15,13 +23,28 @@ export default class testMixin extends wepy.mixin {
   }
 
   onShow() {
+    // console.log('min show')
     // console.log('mixin onShow')
   }
 
   onReady() {
-    // console.log('onready')
+    // console.log('min ready')
   }
   onLoad() {
+    // console.log('min load')
+    // console.log('min load')
+  }
+
+  getLang () {
+    const res = wx.getSystemInfoSync()
+    const lang =  wx.getStorageSync('LanguageKey') || res['language']
+    return this.langID[lang]
+  }
+
+  getLanguage () {
+    const res = wx.getSystemInfoSync()
+    const lang =  wx.getStorageSync('LanguageKey') || res['language']
+    return languages[lang]
   }
 
   rpx2px() {
