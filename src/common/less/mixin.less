@@ -2,22 +2,25 @@
 .bg-image(@name) {
   // background-image: url(@name + ".png");
 
-  // color: yellow;
+
 
   @media (-webkit-device-pixel-ratio: 2),(min-device-pixel-ratio: 2){
     // background-image: url(%("localhost:40000/coupon/%s%s", @name, "@2x.png"));
-    @url: replace(@name, "_ratio_", "2");
-    background-image: url(@url);
+    //@url: replace(@name, "_ratio_", "2");
+    color: yellow;
+    //background-image: url(@url);
   }
 
   @media (-webkit-device-pixel-ratio: 1),(min-device-pixel-ratio: 1){
-    @url: replace(@name, "_ratio_", "1");
-    background-image: url(@url);
+    //@url: replace(@name, "_ratio_", "1");
+    color: red;
+    //background-image: url(@url);
   }
 
   @media (-webkit-device-pixel-ratio: 3),(min-device-pixel-ratio: 3) {
-    @url: replace(@name, "_ratio_", "3");
-    background-image: url(@url);
+    //@url: replace(@name, "_ratio_", "3");
+    color: blue;
+    //background-image: url(@url);
   }
 
 }

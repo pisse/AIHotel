@@ -1,0 +1,129 @@
+<style lang="less">
+  .quick-wrap{
+    font-size:28rpx;
+    margin: 0 30rpx;
+    opacity: 0;
+    height: 0;
+    .cate-name{
+      color: #6b7177;
+      padding-left: 8rpx;
+      margin-bottom: 6rpx;
+      .icon-menu{
+        font-size: 28rpx;
+        margin-right: 4rpx;
+      }
+    }
+    .cate-items{
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap:wrap;
+      margin-left: -8px;
+    }
+    & .text{
+      text-align: center;
+      flex: 0 0 25%;
+      display: inline-block;
+      padding-left: 16rpx;
+      margin-bottom: 20rpx;
+      background-color: #fff;
+      background-clip: content-box;
+      box-sizing: border-box;
+      height: 70rpx;
+      line-height: 70rpx;
+      border-radius: 8rpx;
+      background-color: rgba(255,255,255, 0.1);
+      color: #ffffff;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+  }
+
+</style>
+<template>
+  <view class="quick-wrap {{reveal ? 'quick_show' : ''}}" animation="{{animationData}}">
+    <scroll-view scroll-y="true" style=" height: {{height}};"  scroll-with-animation="true">
+      <repeat for="{{recs}}" key="key" index="index" item="item">
+        <view class="cate-name"><span class="iconfont icon-menu"></span>{{item.name}}</view>
+        <view class="cate-items">
+          <repeat for="{{item.sub}}" key="key" index="idx" item="one">
+            <text class="text" bindtap="select({{one}})">{{one.name}}</text>
+          </repeat>
+        </view>
+      </repeat>
+    </scroll-view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Panel extends wepy.component {
+    data = {
+      recs: [],
+      reveal: false,
+      animationData: '',
+      height: '200px'
+    }
+
+    methods = {
+      select (item) {
+        console.log(item)
+        this.$emit('add-message', {
+          type: 'customer',
+          content: item.name,
+          id: item.id
+        })
+      }
+    }
+
+    show () {
+      console.log('show')
+      clearTimeout(this.__timeout)
+      let animation = wx.createAnimation({
+        duration: 50
+      })
+      animation.opacity(1).height(this.height).step()
+      this.animationData = animation.export()
+      this.reveal = true
+      this.$apply()
+      return new Promise((resolve, reject) => {
+        this.__timeout = setTimeout(() => {
+          resolve()
+        }, 50)
+      })
+    }
+
+    hide () {
+      console.log('hide')
+      this.reveal = false
+
+      let animation = wx.createAnimation({
+        duration: 50
+      })
+      animation.opacity(0).height(0).step()
+      this.animationData = animation.export()
+
+      this.$apply()
+      return new Promise((resolve, reject) => {
+        this.__timeout = setTimeout(() => {
+          resolve()
+        }, 50)
+      })
+    }
+
+    onLoad () {
+      let self = this
+      this.recs = [
+        {'name': '售前', 'id': 100002, 'sub': [{'name': '尺码咨询', 'id': 100003, 'sub': []}, {'name': '发票咨询', 'id': 100004, 'sub': []}, {'name': '库存咨询', 'id': 100005, 'sub': []}, {'name': '价格咨询', 'id': 100006, 'sub': []}, {'name': '活动咨询', 'id': 100007, 'sub': []}, {'name': '评价咨询', 'id': 100008, 'sub': []}, {'name': '快递咨询', 'id': 100009, 'sub': []}, {'name': '如何购买', 'id': 100010, 'sub': []}, {'name': '商品详情', 'id': 100011, 'sub': []}, {'name': '商品咨询', 'id': 100012, 'sub': []}, {'name': '赠品咨询', 'id': 100013, 'sub': []}, {'name': '优惠券咨询', 'id': 100014, 'sub': []}, {'name': '正品咨询', 'id': 100015, 'sub': []}, {'name': '支付方式', 'id': 100016, 'sub': []}, {'name': '基金公司咨询', 'id': 100070, 'sub': [{'name': '基金公司产品的咨询', 'id': 100071, 'sub': [{'name': '基金细分01', 'id': 100117, 'sub': []}]}]}, {'name': '售前-细分1', 'id': 100116, 'sub': []}]},
+        {'name': '售中', 'id': 100017, 'sub': [{'name': '催发货咨询', 'id': 100018, 'sub': [{'name': '阿打算发', 'id': 100094, 'sub': [{'name': '123', 'id': 100126, 'sub': [{'name': '123', 'id': 100127, 'sub': [{'name': '345', 'id': 100128, 'sub': []}]}]}]}, {'name': '阿打算发 安心', 'id': 100095, 'sub': []}]}, {'name': '物流查询', 'id': 100019, 'sub': []}, {'name': '派件问题', 'id': 100020, 'sub': []}, {'name': '转件问题', 'id': 100021, 'sub': []}, {'name': '物流异常', 'id': 100022, 'sub': []}, {'name': '指定物流', 'id': 100023, 'sub': []}, {'name': '退款问题', 'id': 100024, 'sub': []}, {'name': '未发货', 'id': 100025, 'sub': []}, {'name': '已发货', 'id': 100026, 'sub': []}]},
+        {'name': '售后', 'id': 100027, 'sub': [{'name': '换货咨询', 'id': 100028, 'sub': []}, {'name': '评价问题', 'id': 100029, 'sub': []}, {'name': '商家问题', 'id': 100030, 'sub': []}, {'name': '商品安装', 'id': 100031, 'sub': []}, {'name': '商品少发', 'id': 100032, 'sub': []}, {'name': '商品问题', 'id': 100033, 'sub': []}, {'name': '收货问题', 'id': 100034, 'sub': []}, {'name': '退货快递', 'id': 100035, 'sub': []}, {'name': '退货退款', 'id': 100036, 'sub': []}, {'name': '退货运费', 'id': 100037, 'sub': []}, {'name': '处理时效', 'id': 100038, 'sub': []}]},
+        {'name': '基础', 'id': 100039, 'sub': [{'name': '代付咨询', 'id': 100040, 'sub': []}, {'name': '订单咨询', 'id': 100041, 'sub': []}, {'name': '人工咨询', 'id': 100042, 'sub': []}, {'name': '投诉咨询', 'id': 100044, 'sub': []}, {'name': '推荐咨询', 'id': 100045, 'sub': []}, {'name': '账户咨询', 'id': 100047, 'sub': []}]}, {'name': '800TSDEMO', 'id': 100245, 'sub': [{'name': '产品', 'id': 100246, 'sub': []}, {'name': '订购', 'id': 100247, 'sub': []}]},
+        {'name': '其他', 'id': 100001, 'isDefault': true}
+      ]
+      this.$apply()
+      /*
+      wepy.request('getRecommend').then((d) => {})
+      */
+    }
+  }
+</script>

@@ -7,9 +7,9 @@ console.log(lang) */
 
 let configs = {
   zh_CN: {
-    'assistant': '智能助理',
+    'assistant': 'YiButler',
     'roomService': '客房服务',
-    'bookRestaurant': '预定餐厅',
+    'bookRestaurant': '预订餐厅',
     'conferenceInfo': '会议信息',
     'maintenanceReport': '故障服务',
     'talk': '按住讲话',
@@ -31,9 +31,9 @@ let configs = {
     'talkBackground': '聊天背景'
   },
   zh_HK: {
-    'assistant': '智慧助理',
+    'assistant': 'YiButler',
     'roomService': '人客房服务',
-    'bookRestaurant': '订餐厅',
+    'bookRestaurant': '预订餐厅',
     'conferenceInfo': '会议信息',
     'maintenanceReport': '故障服务',
     'talk': '按住说话',
@@ -55,7 +55,7 @@ let configs = {
     'talkBackground': '倾计背景'
   },
   en: {
-    'assistant': 'YiAssistant',
+    'assistant': 'YiButler',
     'roomService': 'Room Service',
     'bookRestaurant': 'Booking a restaurant',
     'conferenceInfo': 'Conference Information',

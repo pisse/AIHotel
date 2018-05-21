@@ -114,14 +114,12 @@
   // import Speach from './speachtoast'
   // import Counter from './counter' // alias example
   // import Toast from 'wepy-com-toast'
-  // import globalization from '@/international/globalization.js'
 
   export default class Panel extends wepy.component {
     data = {
       systemInfo: null,
       vibrateTimer: '',
       recordCancel: false,
-      recordEnd: true,
       autoFocus: false,
       recorderManager: null,
       touchDot: 0,
@@ -131,8 +129,7 @@
       recs: [],
       voice_icon: '/common/img/icon_yuyin@2x.png',
       keyboard_icon: '/common/img/icon_keyboard@2x.png',
-      // btnText: globalization['talk'],
-      btnText: '',
+      btnText: '按住讲话',
       count: 1
     }
 
@@ -160,7 +157,7 @@
         console.log('touch start')
         this.recordStartTime = new Date().getTime()
         this.touchDot = e.touches[0]['pageY']
-        this.recordEnd = false
+        this.recordCancel = false
         this.longpress()
       },
       touchMove (e) {
@@ -179,9 +176,8 @@
       touchEnd (e) {
         console.log('touch end')
         const self = this
-        this.recordEnd = true
-        this.btnText = this.globalization['talk'] // '按住讲话'
-        setTimeout(() => { console.log('emit stop'); self.recorderManager.stop() }, 300)
+        this.btnText = '按住讲话'
+        setTimeout(() => { self.recorderManager.stop() }, 300)
       },
       shortTap (e) {
         console.log('short tap')
@@ -189,9 +185,9 @@
       longTap (e) {
         this.longpress()
         /* recorderManager.onFrameRecorded((res) => {
-          const { frameBuffer } = res
-          console.log('frameBuffer.byteLength', frameBuffer.byteLength)
-        }) */
+         const { frameBuffer } = res
+         console.log('frameBuffer.byteLength', frameBuffer.byteLength)
+         }) */
         // this.$invoke('counter', 'minus', 45, 6)
       },
       confirm (e) {
@@ -212,15 +208,15 @@
       blur (e) {
         let value = e.detail.value
         /*
-        this.$emit('add-message', {
-          type: 'customer',
-          content: Math.random()
-        })
-        */
+         this.$emit('add-message', {
+         type: 'customer',
+         content: Math.random()
+         })
+         */
         /* this.sendValue = null // Math.random()
-        this.setData({
-          sendValue: ''
-        }) */
+         this.setData({
+         sendValue: ''
+         }) */
         // this.$apply()
         // console.log('blur', e)
       }
@@ -229,7 +225,7 @@
     longpress () {
       const self = this
       console.log('longTap')
-      this.btnText = this.globalization['send'] // '松开发送'
+      this.btnText = '松开发送'
       /* let promise = this.$invoke('speachtoast', 'show', {
        title: '自定义标题',
        img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
@@ -249,25 +245,37 @@
 
       this.$invoke('../speach', 'show', {
         // img: '../common/img/speaching.png',
-        tip: this.globalization['listening'], // '聆听中,请说话.. ',
-        // title: '聆听中,请说话...',
-        img: true,
-        notice: this.globalization['upCancel'], // '手指上划,取消发送',
+        tip: ' ',
+        title: '聆听中,请说话...',
+        notice: '手指上划,取消发送',
         duration: 1000 * 60
         // no_mask: true
       })
     }
     startVibrate () {
       // 短时震动
-      let self = this
       wx.vibrateLong({
         success: function () {
-          console.log(self.globalization['vibrateSuccess'])
+          console.log('震动成功')
         },
         fail: function () {
-          console.log(self.globalization['vibrateFail'])
+          console.log('震动失败')
         }
       })
+      /* if (this.vibrateTimer) {
+       clearTimeout(this.vibrateTimer)
+       this.vibrateTimer = null
+       }
+       this.vibrateTimer = setTimeout(() => {
+       wx.vibrateLong({
+       success: function () {
+       console.log('震动成功')
+       },
+       fail: function () {
+       console.log('震动失败')
+       }
+       })
+       }, 200) */
     }
     initRecordManager () {
       const self = this
@@ -276,10 +284,6 @@
 
       recorderManager.onStart(() => {
         console.log('recorder start')
-        if (this.recordEnd) {
-          console.log('stop again')
-          recorderManager.stop()
-        }
       })
       recorderManager.onResume(() => {
         console.log('recorder resume')
@@ -290,7 +294,7 @@
       recorderManager.onStop((res) => {
         console.log('recorder stop', res)
         const { tempFilePath } = res
-        const self = this
+
         // is
         if (this.recordCancel) {
           this.$invoke('../speach', 'hide', {})
@@ -298,7 +302,7 @@
         }
         this.$invoke('../speach', 'show', {
           tip: '',
-          title: self.globalization['hold'],
+          title: '请稍后',
           notice: '',
           duration: 1000 * 10
         })
@@ -310,7 +314,6 @@
           name: 'record',
           // header: {}, // 设置请求的 header
           formData: {
-            'lang': self.getLang(),
             'msg': 'voice'
           }, // HTTP 请求中其他额外的 form data
           complete: function () {
@@ -329,7 +332,7 @@
           if (json.data.err_no) {
             self.$emit('add-message', {
               type: 'me',
-              content: this.globalization['hearError'] // '对不起，没听清楚您说什么~'
+              content: '对不起，没听清楚您说什么~'
             })
           } else {
             self.$emit('add-message', {
@@ -354,8 +357,7 @@
         })
       })
 
-      recorderManager.onError((e) => {
-        console.log(e)
+      recorderManager.onError(() => {
         console.log('record error')
       })
     }
@@ -368,17 +370,15 @@
       this.keyboard_icon = this.getImg('/common/img/icon_record', 'png')
       this.voice_icon = this.getImg('/common/img/icon_yuyin', 'png')
       /* this.recs = [
-        {key: 'roomService', text: '客房服务'},
-        {key: 'texiService', text: '出行租车'},
-        {key: 'foodService', text: '美食推荐'},
-        {key: 'accidentService', text: '故障服务'}
-      ] */
-      this.globalization = this.getLanguage()
-      this.btnText = this.globalization['talk']
+       {key: 'roomService', text: '客房服务'},
+       {key: 'texiService', text: '出行租车'},
+       {key: 'foodService', text: '美食推荐'},
+       {key: 'accidentService', text: '故障服务'}
+       ] */
       this.$apply()
       /*
-      wepy.request('getRecommend').then((d) => {})
-      */
+       wepy.request('getRecommend').then((d) => {})
+       */
     }
   }
 </script>

@@ -5,6 +5,7 @@ export default class testMixin extends wepy.mixin {
   data = {
     mixin: 'This is mixin data.',
     host: 'https://jdzs.wezhuiyi.com/node/',
+    api: 'https://jdzsapi.wezhuiyi.com/',
     sessionName: 'sessionID',
     pixelRatio: 2,
     globalization: {},
@@ -12,7 +13,8 @@ export default class testMixin extends wepy.mixin {
       zh_CN: 1537,
       en: 1737,
       zh_HK: 1637
-    }
+    },
+    lang: ''
   }
 
   methods = {
@@ -38,6 +40,7 @@ export default class testMixin extends wepy.mixin {
   getLang () {
     const res = wx.getSystemInfoSync()
     const lang =  wx.getStorageSync('LanguageKey') || res['language']
+    // this.lang = lang
     return this.langID[lang]
   }
 

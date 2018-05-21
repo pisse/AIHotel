@@ -97,7 +97,7 @@
           icon: 'success',
           duration: 1500,
           success: function () {
-           wx.reLaunch({
+            wx.reLaunch({
               url: '../index/index'
             })
           }

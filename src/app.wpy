@@ -1,6 +1,7 @@
 <style lang="less">
 .container {
-  background-image: linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139);
+  // background-image: linear-gradient( 45deg, #5A4B43 , #2A2A2A 50% , #474139);
+  background-color: #EFF1F5;
   height:100vh;
   overflow: hidden;
   background-repeat:no-repeat;
@@ -20,7 +21,7 @@
   }
   .page-ft{
     // background-image: linear-gradient( 45deg, #5A4B43 , #474139);
-    overflow: hidden;
+    // overflow: hidden;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -41,15 +42,15 @@ export default class extends wepy.app {
       // 'test/test2',
       'pages/index/index',
       'pages/background/background',
-      'pages/mall/mall',
-      'pages/setting/setting'
+      'pages/mall/mall'
+      // 'pages/setting/setting'
     ],
     window: {
       backgroundTextStyle: 'dark',
-      navigationBarBackgroundColor: '#2A2A2A',
-      navigationBarTitleText: '智能助理',
-      navigationBarTextStyle: 'white',
-      backgroundColor: '#2A2A2A'
+      navigationBarBackgroundColor: '#ffffff',
+      navigationBarTitleText: 'YiButler',
+      navigationBarTextStyle: 'black',
+      backgroundColor: '#EFF1F5'
     }
   }
 
@@ -57,7 +58,7 @@ export default class extends wepy.app {
     host: 'https://jdzs.wezhuiyi.com/node/',
     systemInfo: {},
     userInfo: null,
-    footHeight: 260,
+    footHeight: 290,
     clientHeight: '',
     cursorSpace: ''
   }
@@ -75,7 +76,8 @@ export default class extends wepy.app {
       },
       success (obj) {
         // console.log('request success')
-        let sessionID = self.getCookie(obj.header['Set-Cookie'], 'restifySessionid')
+        let cookie = obj.header['Set-Cookie'] || obj.header['set-cookie'] || ''
+        let sessionID = self.getCookie(cookie, 'restifySessionid')
         if (sessionID) {
           wx.setStorage({
             key: 'sessionID',
@@ -113,15 +115,21 @@ export default class extends wepy.app {
     let self = this
     // 检测当前用户登录态是否有效
     wx.checkSession({
-      success: function () {
+      success: function (res) {
         // session 未过期，并且在本生命周期一直有效
-        // console.log('session 未过期')
+        self.checkOpenId()
       },
       fail: function () {
         // 登录态过期
         self.login() // 重新登录
       }
     })
+  }
+  checkOpenId () {
+    let openID = wx.getStorageSync('openID')
+    if (!openID) {
+      this.login()
+    }
   }
 
   login () {
@@ -139,6 +147,10 @@ export default class extends wepy.app {
             }
           }).then(res => {
             // console.log(res)
+            wx.setStorage({
+              key: 'openID',
+              data: res.data.data
+            })
           })
         } else {
           console.log('获取用户登录态失败！' + res.errMsg)
@@ -160,6 +172,7 @@ export default class extends wepy.app {
     // console.log(data)
     wx.getSetting({
       success(res) {
+        console.log(res)
         if (!res.authSetting['scope.record']) {
           wx.authorize({
             scope: 'scope.record',
@@ -180,6 +193,7 @@ export default class extends wepy.app {
       return this.globalData.userInfo
     }
     let data = await wepy.getUserInfo()
+    console.log(data)
     // console.log(userInfo)
     this.globalData.userInfo = data.userInfo
     return this.globalData.userInfo
