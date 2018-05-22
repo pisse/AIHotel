@@ -227,12 +227,14 @@
       recordCancel: false,
       isRecording: false,
       isRequesting: false,
+      has_send: false,
       recordSeq: 0,
       btnText: '',
       recorderManager: null,
       speech_id: '',
       speech_seq: 0,
-      speech_text: ''
+      speech_text: '',
+      cancelText: ''
     }
     props = {
       type: String
@@ -272,7 +274,7 @@
       touchEnd (e) {
         console.log('touch end')
         const self = this
-        this.btnText = '按住讲话'
+        this.btnText = this.globalization['listening']
         // this.speech_seq = 0
         this.isRecording = false
         this.$invoke('../keyboard', 'modifyTip', this.btnText)
@@ -308,8 +310,8 @@
 
     longpress () {
       const self = this
-      console.log('longTap2222')
-      this.btnText = '上划取消，松开发送'
+      // console.log('longTap2222')
+      this.btnText = this.cancelText
       /* let promise = this.$invoke('speachtoast', 'show', {
        title: '自定义标题',
        img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
@@ -317,7 +319,7 @@
       const options = {
         // duration: 3000,
         sampleRate: 16000,
-        numberOfChannels: 1,
+        numberOfChannels: 2,
         encodeBitRate: 64000,
         frameSize: 5,
         format: 'mp3'
@@ -376,6 +378,9 @@
       })
       recorderManager.onPause(() => {
         console.log('recorder pause')
+      })
+      recorderManager.onStop((res) => {
+        console.log('stop end')
       })
       /*
       recorderManager.onStop((res) => {
@@ -478,18 +483,20 @@
         },
         url: 'https://api.ai.qq.com/fcgi-bin/aai/aai_wxasrs'
       }).then((res) => {
+        console.log(res)
         if (res.statusCode == 200 && res.data.ret == 0) {
           let data = res.data.data
-          if (data.end == 1) {
+          if (data.speech_text) {
+            self.speech_text = data.speech_text
+            // self.has_send = true
+            self.$apply()
+          }
+          if (data.is_final_res == 1) {
             self.$emit('add-message', {
               type: 'customer',
               content: self.speech_text
             })
-          }
-          if (data.speech_text) {
-            self.speech_text = data.speech_text
-            self.$apply()
-          }
+          }else{}
         } else {
           /* console.log(11)
           self.$emit('add-message', {
@@ -573,6 +580,8 @@
 
     onLoad () {
       let self = this
+      this.globalization = this.getLanguage()
+      this.cancelText = this.globalization['upCancel']
       this.voice_icon = this.getImg('/common/img/voice', 'png')
       this.initRecordManager()
       this.$apply()

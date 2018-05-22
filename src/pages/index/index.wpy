@@ -221,6 +221,7 @@
             </view>
             <repeat for="{{messages}}" key="index" index="index" item="item">
               <message :item="item"
+                       @relate-select.user="newMessage"
                        @refresh-answer.user="refreshAnswer"
                        @add-message.user="messageFeedback"
                        @task-confirm.user="newMessage"
@@ -494,7 +495,6 @@
           this.showDialog()
         }
       },
-
       roomIpt (e) {
         this.roomNum = e.detail.value
       },
@@ -512,7 +512,6 @@
         return val
       },
       onConfirm (e) {
-        console.log(e)
         let self = this
         this.autoFocus = false
         if (this.roomNum && this.cardNum) {
@@ -541,14 +540,20 @@
               })
               wx.hideLoading()
               self.hideDialog()
+              let authSuccess = {
+                type: 'tip',
+                title: res.data.message
+              }
+              self.messages.push(authSuccess)
+              self.$apply()
             } else {
               wx.showToast({
-                title: '失败',
+                title: res.data.message,
                 icon: 'none',
                 duration: 2000
               })
-              wx.hideLoading()
-              self.hideDialog()
+              // wx.hideLoading()
+              // self.hideDialog()
             }
           })
           wx.showLoading({
@@ -593,16 +598,18 @@
       } else {
       }
     }
-
     pushMessage (msg) {
-      // console.log(msg)
-      this.messages.push(msg)
+      console.log(msg)
+      if (Array.isArray(msg)) {
+        this.messages = this.messages.concat(msg)
+      } else {
+        this.messages.push(msg)
+      }
       this.$apply()
       setTimeout(() => {
         this.pageScrollToBottom()
       }, 150)
     }
-
     pageScrollToBottom(h) {
       let self = this
       h = h || 1
@@ -618,9 +625,7 @@
         self.$apply()
       }).exec()
     }
-
     async question (message, page) {
-      console.log('begin question')
       if (page === undefined) {
         this.page = 0
       } else {
@@ -634,8 +639,10 @@
       let result = res.data.data
       if (result.status == 0) {
         let answer = await this.getAnswer(result)
-        this.pushMessage(answer)
-        await this.analysisAnswer(result)
+        if (answer) {
+          this.pushMessage(answer)
+          await this.analysisAnswer(result)
+        }
       }
     }
     async analysisAnswer (result) {
@@ -698,34 +705,44 @@
       }
     }
     async getAnswer (result) {
+      let answers = []
       let answerType = result.answer_type
       if (result.clarify) {
         answerType = 'task'
       }
       // reject_focog
-      if (result.recject_recog) {
+      if (result.reject_recog) {
         answerType = 'reject'
       }
-      let answer = {}
       switch (answerType) {
         case 'reject':
-          answer = this.getRejectAnswer(result)
+          let rejectAnswer = this.getRejectAnswer(result)
+          answers.push(rejectAnswer)
           break
         case 'faq':
-          answer = await this.getFaqAnswer(result)
+          let faqAnswer = await this.getFaqAnswer(result)
+          answers.push(faqAnswer)
           break
         case 'task':
-          answer = await this.getTaskAnswer(result)
+          if (!result.clarify.answer && result.info && result.info.length > 0) {
+            let faqAnswer = await this.getFaqAnswer(result)
+            answers.push(faqAnswer)
+          }
+          if (result.clarify.answer) {
+            let taskAnswer = await this.getTaskAnswer(result)
+            answers.push(taskAnswer)
+          }
           break
         default:
-          answer = await this.getFaqAnswer(result)
+          let answer = await this.getFaqAnswer(result)
+          answers.push(answer)
       }
-      return answer
+      return answers
     }
-    getRejectAnswer () {
+    getRejectAnswer (data) {
       let message = {
         type: 'me',
-        content: '您好！很抱歉，您咨询的内容我们目前暂时无法为您提供准确的服务，欢迎联系我们的客服中心8888，咨询并获取您需要的服务。谢谢！'
+        content: data.reject_info
       }
       return message
     }
@@ -759,17 +776,21 @@
       // recommend answer
       if (data.type == 300) {
         message['content'] = data.question // '您可能感兴趣以下问题'
-        message['list'] = infos.slice()
+        message['list'] = infos && infos.slice()
          /*  .map(item => {
           return self.getContent(item, true)['content']
         }) */
       } else if (data.type == 200) { // direct answer
-        Object.assign(message, await this.getContent(infos[0]))
+        let content = await this.getContent(infos[0])
+        if (content) {
+          Object.assign(message, content)
+        } else {
+          return false
+        }
       }
 
       return message
     }
-
     async getContent (info) {
       let self = this
       let message = {
@@ -784,6 +805,7 @@
           break
         case 'text':
           message['content'] = info['answer']
+          message['relate'] = info['relate']
           break
         case 'rich-text':
           message['content'] = info['answer']
@@ -843,7 +865,6 @@
       }
       return message
     }
-
     events = {
       'index-emit': (...args) => {
         let $event = args[args.length - 1]
@@ -854,12 +875,10 @@
         this.clientHeight = this.$parent.globalData.clientHeight
       } */
     }
-
     onReady () {
       console.log('index ready')
       this.pageScrollToBottom()
     }
-
     async onShow () {
       /* let date = new Date()
       this.pushMessage({
@@ -883,7 +902,6 @@
         title: this.globalization['assistant']
       })
     }
-
     async onLoad() {
       let self = this
       // console.log(this.$wxapp.globalData)

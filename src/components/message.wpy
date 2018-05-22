@@ -87,8 +87,6 @@
       }
       .message-list-wrap{
         background-color: #ffffff;
-        //border-bottom-left-radius: 26rpx;
-        //border-bottom-right-radius: 26rpx;
         // padding-bottom: 25rpx;
         .list-item{
           display: block;
@@ -100,6 +98,28 @@
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
+        }
+      }
+      .message-relate-wrap{
+        border-bottom-left-radius: 43rpx;
+        border-bottom-right-radius: 43rpx;
+        background-color: #ffffff;
+        .relate-item{
+          display: block;
+          height: 60rpx;
+          line-height: 60rpx;
+          padding: 20rpx 30rpx ;
+          // padding-top: 25rpx;
+          color: #333333;
+          font-size: 28rpx;
+          border-top: 1rpx solid #EDEDED;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          // color: #0080ff;
+          white-space:nowrap;
+          //&:last-child{
+            //padding-bottom: 25rpx;
+          //}
         }
       }
     }
@@ -338,6 +358,13 @@
           <text class="list-item" bindtap="selectQuestion({{info}}, {{item.list_type}})">{{info['question'] || info}}</text>
         </repeat>
       </view>
+
+      <view class="message-relate-wrap" slot="img" wx:if="{{item.relate}}">
+        <repeat for="{{item.relate}}" key="index" index="index" item="info">
+          <text class="relate-item" bindtap="selectRelate({{info}})">{{info['qt']}}</text>
+        </repeat>
+      </view>
+
     </view>
 
     <view class="task-list-wrap {{item.selected ? 'selected' : ''}}" wx:elif="{{item.type == 'task_list'}}">
@@ -433,7 +460,6 @@
       },
       onConfirm (data) {
         // if (!this.selected) {
-        console.log(11111111111, this.selected)
         this.selected = true
         this.$emit('order-confirm', data)
         // }
@@ -450,6 +476,12 @@
           this.$emit('add-message', item)
         } */
         this.$emit('add-message', item)
+      },
+      selectRelate (item) {
+        this.$emit('relate-select', {
+          type: 'customer',
+          content: item.qt
+        })
       },
       refreshAnswer (item) {
         console.log(item)

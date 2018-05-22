@@ -71,7 +71,10 @@ export default class extends wepy.app {
         // p.timestamp = +new Date()
         p.header || (p.header = {})
         let sessionID = wx.getStorageSync('sessionID')
+
         p.header['cookie'] = 'restifySessionid=' + sessionID
+        this.addLangParam(p)
+        // console.log(p)
         return p
       },
       success (obj) {
@@ -89,6 +92,20 @@ export default class extends wepy.app {
     })
     this.use('requestfix')
     this.use('promisify')
+  }
+
+  addLangParam (p) {
+    let lang = wx.getStorageSync('LanguageKey') || 'zh_CN'
+    if (p.data) {
+      p.data.lang = lang
+    } else {
+      if (p.url.indexOf('?') > -1) {
+        p.url = p.url + '&lang=' + lang
+      } else {
+        p.url = p.url + '?lang=' + lang
+      }
+    }
+    return p
   }
 
   onLaunch() {
