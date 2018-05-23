@@ -227,7 +227,8 @@
       recordCancel: false,
       isRecording: false,
       isRequesting: false,
-      has_send: false,
+      hasSend: false,
+      onStopSendTimer: null,
       recordSeq: 0,
       btnText: '',
       recorderManager: null,
@@ -256,6 +257,8 @@
         this.speech_id = this.uniq()
         this.speech_seq = 0
         this.speech_text = ''
+        this.hasSend = false
+        this.clearStopTimer()
         this.longpress()
       },
       touchMove (e) {
@@ -308,6 +311,24 @@
       }
     }
 
+    clearStopTimer () {
+      if (this.onStopSendTimer) {
+        clearTimeout(this.onStopSendTimer)
+        this.onStopSendTimer = null
+      }
+    }
+    startStopTimer () {
+      let self = this
+      this.onStopSendTimer = setTimeout( () => {
+        console.log('in startStopTimer', self.speech_text)
+        if (self.speech_text && !self.hasSend) {
+          self.$emit('add-message', {
+            type: 'customer',
+            content: self.speech_text
+          })
+        }
+      }, 3000)
+    }
     longpress () {
       const self = this
       // console.log('longTap2222')
@@ -381,6 +402,7 @@
       })
       recorderManager.onStop((res) => {
         console.log('stop end')
+        this.startStopTimer()
       })
       /*
       recorderManager.onStop((res) => {
@@ -460,7 +482,6 @@
           'time_stamp': parseInt(new Date().getTime() / 1000),
           'nonce_str': self.uniq()
         }
-        console.log(query)
         query['speech_chunk'] = base64
         let sign = self.getSign(query)
         query['sign'] = sign
@@ -474,6 +495,9 @@
     }
 
     request (query) {
+      console.log('query end =' + query.end)
+      console.log('query seq =' + query.seq)
+      console.log(query)
       let self = this
       wepy.request({
         method: 'post',
@@ -483,30 +507,31 @@
         },
         url: 'https://api.ai.qq.com/fcgi-bin/aai/aai_wxasrs'
       }).then((res) => {
+        console.log('=====response======')
+        console.log('ack===' + res.data.data.ack)
         console.log(res)
         if (res.statusCode == 200 && res.data.ret == 0) {
           let data = res.data.data
           if (data.speech_text) {
             self.speech_text = data.speech_text
-            // self.has_send = true
             self.$apply()
           }
-          if (data.is_final_res == 1) {
+          if (data.is_final_res == 1 && !self.hasSend) {
+            console.log('when is_final_res =1 ')
             self.$emit('add-message', {
               type: 'customer',
               content: self.speech_text
             })
+            self.hasSend = true
           }else{}
         } else {
-          /* console.log(11)
-          self.$emit('add-message', {
-            type: 'me',
-            content: '对不起，没听清楚您说什么~'
-          }) */
+          console.log(res.data.msg)
         }
       }).then(() => {
         self.isRequesting = false
         this.$apply()
+      }).catch(e=> {
+        console.log(e)
       })
     }
 
