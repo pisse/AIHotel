@@ -340,7 +340,7 @@
       const options = {
         // duration: 3000,
         sampleRate: 16000,
-        numberOfChannels: 2,
+        numberOfChannels: 1,
         encodeBitRate: 64000,
         frameSize: 5,
         format: 'mp3'
