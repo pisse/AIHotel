@@ -404,6 +404,7 @@
         console.log('stop end')
         this.startStopTimer()
       })
+
       /*
       recorderManager.onStop((res) => {
         console.log('recorder stop', res)
@@ -495,9 +496,6 @@
     }
 
     request (query) {
-      console.log('query end =' + query.end)
-      console.log('query seq =' + query.seq)
-      console.log(query)
       let self = this
       wepy.request({
         method: 'post',
@@ -507,9 +505,6 @@
         },
         url: 'https://api.ai.qq.com/fcgi-bin/aai/aai_wxasrs'
       }).then((res) => {
-        console.log('=====response======')
-        console.log('ack===' + res.data.data.ack)
-        console.log(res)
         if (res.statusCode == 200 && res.data.ret == 0) {
           let data = res.data.data
           if (data.speech_text) {
@@ -517,7 +512,6 @@
             self.$apply()
           }
           if (data.is_final_res == 1 && !self.hasSend) {
-            console.log('when is_final_res =1 ')
             self.$emit('add-message', {
               type: 'customer',
               content: self.speech_text
@@ -531,7 +525,6 @@
         self.isRequesting = false
         this.$apply()
       }).catch(e=> {
-        console.log(e)
       })
     }
 

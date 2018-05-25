@@ -8,6 +8,10 @@ console.log(lang) */
 let configs = {
   zh_CN: {
     'assistant': 'YiButler',
+    'authentication': '立即认证',
+    'infoAuth': '信息认证',
+    'roomNO': '房间号',
+    'cardID': '身份证后4位',
     'roomService': '客房服务',
     'bookRestaurant': '预订餐厅',
     'conferenceInfo': '会议信息',
@@ -29,10 +33,16 @@ let configs = {
     'simpleChanese': '简体中文',
     'english': 'English',
     'languages': '多语言',
-    'talkBackground': '聊天背景'
+    'talkBackground': '聊天背景',
+    'book': '预订',
+    'confirm': '确定'
   },
   zh_HK: {
     'assistant': 'YiButler',
+    'authentication': '立即认证',
+    'infoAuth': '信息认证',
+    'roomNO': '房间号',
+    'cardID': '身份证后4位',
     'roomService': '人客房服务',
     'bookRestaurant': '预订餐厅',
     'conferenceInfo': '会议信息',
@@ -54,10 +64,16 @@ let configs = {
     'simpleChanese': '简体中文',
     'english': 'English',
     'languages': '多语言',
-    'talkBackground': '倾计背景'
+    'talkBackground': '倾计背景',
+    'book': '预订',
+    'confirm': '确定'
   },
   en: {
     'assistant': 'YiButler',
+    'authentication': 'Immediate authentication',
+    'infoAuth': 'Information authentication',
+    'roomNO': 'Room NO.',
+    'cardID': '4 position after identity card',
     'roomService': 'Room Service',
     'bookRestaurant': 'Booking a restaurant',
     'conferenceInfo': 'Conference Information',
@@ -79,7 +95,9 @@ let configs = {
     'simpleChange': '简体中文',
     'english': 'English',
     'languages': 'Languages',
-    'talkBackground': 'Talk Background'
+    'talkBackground': 'Talk Background',
+    'book': 'Book',
+    'confirm': 'Confirm'
   }
 }
 export default configs

@@ -74,7 +74,7 @@ export default class extends wepy.app {
 
         p.header['cookie'] = 'restifySessionid=' + sessionID
         this.addLangParam(p)
-        // console.log(p)
+        console.log(p)
         return p
       },
       success (obj) {

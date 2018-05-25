@@ -377,7 +377,7 @@
               <text class="desc">{{task.subtitle}}</text>
             </view>
             <text class="price" wx:if="{{task.price}}">{{task.price}}</text>
-            <view class="confirm-btn" bindtap="onSelect({{task}})">预订</view>
+            <view class="confirm-btn" bindtap="onSelect({{task}})">{{bookText}}</view>
           </view>
         </view>
       </repeat>
@@ -394,7 +394,7 @@
         </repeat>
       </view>
       <view class="task-order-btns">
-        <text class="confirm" bindtap="onConfirm({{item}})">确定</text>
+        <text class="confirm" bindtap="onConfirm({{item}})">{{confirmText}}</text>
       </view>
     </view>
 
@@ -432,7 +432,9 @@
       selected: false,
       logoImg: '',
       refreshIcon: '',
-      indicatorDots: true
+      indicatorDots: true,
+      bookText: '',
+      confirmText: ''
     };
     mixins = [baseMixin]
     props = {
@@ -493,6 +495,9 @@
     }
 
     onLoad () {
+      this.globalization = this.getLanguage()
+      this.bookText = this.globalization['book']
+      this.confirmText = this.globalization['confirm']
       this.logoImg = this.getImg('/common/img/logo', 'png')
       this.refreshIcon = this.getImg('/common/img/flash', 'png')
     }

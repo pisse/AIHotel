@@ -261,11 +261,11 @@
     <view class="auth-dialog" wx:if="{{authShow}}">
       <view class="auth-mask" bindtap="masktap"></view>
       <view class="auth-content">
-        <text class="auth-header">信息认证</text>
-        <input class="input"  cursor-spacing="" type="number" bindinput="roomIpt" placeholder="房间号" />
-        <input class="input"  cursor-spacing="" type="password" value="{{cardNum}}" bindinput="cardIpt" placeholder="身份证后四位" />
+        <text class="auth-header">{{infoAuth}}</text>
+        <input class="input"  cursor-spacing="" type="number" bindinput="roomIpt" placeholder="{{roomNO}}" />
+        <input class="input"  cursor-spacing="" type="password" value="{{cardNum}}" bindinput="cardIpt" placeholder="{{cardID}}" />
         <view class="auth-btn-wrap">
-          <text class="auth-btn" bindtap="onConfirm">确定</text>
+          <text class="auth-btn" bindtap="onConfirm">{{confirmText}}</text>
         </view>
       </view>
     </view>
@@ -374,7 +374,11 @@
       },
       customerInfo: null,
       scrollTimer: null,
-      globalization: {}
+      globalization: {},
+      infoAuth: '',
+      roomNO: '',
+      cardID: '',
+      confirmText: ''
     }
 
     computed = {
@@ -385,20 +389,28 @@
 
     methods = {
       setLang (lang) {
-        wx.setStorage({
-          key: 'LanguageKey',
-          data: lang
-        })
-        wx.showToast({
-          title: '设置成功',
-          icon: 'success',
-          duration: 1500,
-          success: function () {
-            wx.reLaunch({
-              url: '../index/index'
-            })
-          }
-        })
+        let preLang = wx.getStorageSync('LanguageKey')
+        if (lang != preLang) {
+          wx.setStorage({
+            key: 'LanguageKey',
+            data: lang
+          })
+          // clear sessionID
+          wx.setStorage({
+            key: 'sessionID',
+            data: ''
+          })
+          wx.showToast({
+            title: '设置成功',
+            icon: 'success',
+            duration: 1500,
+            success: function () {
+              wx.reLaunch({
+                url: '../index/index'
+              })
+            }
+          })
+        }
       },
       tap () {
         // console.log('do noting from ' + this.$name)
@@ -635,6 +647,7 @@
       let res = await wepy.request({
         url: self.host + 'zy_service/query?question=' + message['content'] + '&page=' + this.page
       })
+      console.log(res)
 
       let result = res.data.data
       if (result.status == 0) {
@@ -898,6 +911,10 @@
 
       this.lang = wx.getStorageSync('LanguageKey')
       this.globalization = this.getLanguage()
+      this.infoAuth = this.globalization['infoAuth']
+      this.roomNO = this.globalization['roomNO']
+      this.cardID = this.globalization['cardID']
+      this.confirmText = this.globalization['confirm']
       wx.setNavigationBarTitle({
         title: this.globalization['assistant']
       })
@@ -934,14 +951,14 @@
       })
       this.headImg = this.getImg('/common/img/head', 'png')
       let welcomeInfo = await wepy.request({
-        url: self.api + 'api/public/config/getWelcome'
+        url: self.api + 'api/public/config/getInitData'
       }).then(res => {
         let welcome = {
           type: 'me',
-          content: res.data.data
+          content: res.data.data.HotelWelcome.value
         }
         this.messages.push(welcome)
-        let authMsg = {type: 'me', logo: false, icon: this.getImg('/common/img/right', 'png'), content: '', action: '立即验证'}
+        let authMsg = {type: 'me', logo: false, icon: this.getImg('/common/img/right', 'png'), content: '', action: this.globalization.authentication}
         this.messages.push(authMsg)
         this.$apply()
       })
