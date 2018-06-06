@@ -214,6 +214,10 @@
   import md5 from 'md5'
   import baseMixin from '../mixins/base'
   import util from '@/utils/util.js'
+  const plugin = requirePlugin("WechatSI")
+
+  // 获取**全局唯一**的语音识别管理器**recordRecoManager**
+  const manager = plugin.getRecordRecognitionManager()
 
   export default class Panel extends wepy.component {
     data = {
@@ -281,19 +285,22 @@
         // this.speech_seq = 0
         this.isRecording = false
         this.$invoke('../keyboard', 'modifyTip', this.btnText)
-        setTimeout(() => { self.recorderManager.stop() }, 300)
+        setTimeout(() => {
+          // self.recorderManager.stop()
+          manager.stop()
+        }, 300)
       },
       shortTap (e) {
         console.log('short tap')
       },
-      longTap (e) {
-        this.longpress()
-        /* recorderManager.onFrameRecorded((res) => {
+      /* longTap (e) {
+        // this.longpress()
+        /!* recorderManager.onFrameRecorded((res) => {
          const { frameBuffer } = res
          console.log('frameBuffer.byteLength', frameBuffer.byteLength)
-         }) */
+         }) *!/
         // this.$invoke('counter', 'minus', 45, 6)
-      },
+      }, */
       confirm (e) {
         let value = this.trim(e.detail.value)
         if (!value) {
@@ -345,9 +352,10 @@
         frameSize: 5,
         format: 'mp3'
       }
-      if (self.recorderManager) {
+      /* if (self.recorderManager) {
         self.recorderManager.start(options)
-      }
+      } */
+      manager.start()
       this.startVibrate()
 
       this.$invoke('../keyboard', 'modifyTip', this.btnText)
@@ -495,6 +503,82 @@
       })
     }
 
+    /**
+     * 官方语音插件初始化
+     * 初始化语音识别回调
+     * 绑定语音播放开始事件
+     */
+    initRecord () {
+      // 有新的识别内容返回，则会调用此事件
+      manager.onRecognize = (res) => {
+        /* let currentData = Object.assign({}, this.data.currentTranslate, {
+          text: res.result,
+        })
+        this.setData({
+          currentTranslate: currentData,
+        })
+        this.scrollToNew(); */
+        console.log('onRecognize')
+        console.log(res)
+        if (res.result) {
+          this.speech_text = res.result
+          this.$apply()
+        }
+      }
+
+      // 识别结束事件
+      manager.onStop = (res) => {
+
+        console.log('识别结束事件')
+        /* let text = res.result
+
+        if(text == '') {
+          this.showRecordEmptyTip()
+          return
+        }
+
+        let lastId = this.data.lastId + 1
+
+        let currentData = Object.assign({}, this.data.currentTranslate, {
+          text: res.result,
+          translateText: '正在翻译中',
+          id: lastId,
+          voicePath: res.tempFilePath
+        })
+
+        this.setData({
+          currentTranslate: currentData,
+          recordStatus: 1,
+          lastId: lastId,
+        })
+
+        this.scrollToNew();
+
+        this.translateText(currentData, this.data.dialogList.length) */
+        this.isRequesting = false
+        if (this.recordCancel) {
+          // this.$invoke('../speach', 'hide', {})
+          this.$apply()
+          return
+        }
+        this.$emit('add-message', {
+          type: 'customer',
+          content: this.speech_text
+        })
+        this.$apply()
+      }
+
+      // 识别错误事件
+      manager.onError = (res) => {
+
+        this.setData({
+          recording: false,
+          bottomButtonDisabled: false,
+        })
+
+      }
+    }
+
     request (query) {
       let self = this
       wepy.request({
@@ -601,7 +685,8 @@
       this.globalization = this.getLanguage()
       this.cancelText = this.globalization['upCancel']
       this.voice_icon = this.getImg('/common/img/voice', 'png')
-      this.initRecordManager()
+      // this.initRecordManager()
+      this.initRecord()
       this.$apply()
       /*
       wepy.request('getRecommend').then((d) => {})
